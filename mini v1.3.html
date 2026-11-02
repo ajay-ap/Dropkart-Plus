@@ -1,0 +1,3285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>DropKart Plus — Live E-Commerce, Vertical Tracker & Role Portals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-canvas: #F1F3F6;
+      --bg-surface: #FFFFFF;
+      --bg-obsidian: #0F172A;
+      --bg-obsidian-card: #1E293B;
+      --fk-blue: #2874F0;
+      --fk-blue-dark: #1B56B8;
+      --fk-yellow: #FFE500;
+      --text-primary: #111827;
+      --text-secondary: #4B5563;
+      --text-muted: #6B7280;
+      --accent-emerald: #16A34A;
+      --accent-emerald-soft: #DCFCE7;
+      --accent-amber: #D97706;
+      --accent-amber-soft: #FEF3C7;
+      --accent-danger: #DC2626;
+      --accent-danger-soft: #FEE2E2;
+      --border-light: #E5E7EB;
+      --border-dark: #334155;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-card: 0 4px 14px rgba(0,0,0,0.06);
+      --shadow-float: 0 18px 36px rgba(15,23,42,0.16);
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
+    button, input, select, textarea { font-family: inherit; }
+
+    /* ==========================================================================
+       1. NAVBAR & LIVE KEYWORD RECOMMENDATION SEARCH DROPDOWN
+       ========================================================================== */
+    .navbar {
+      position: sticky; top: 0; z-index: 120;
+      background: #FFFFFF; border-bottom: 1px solid var(--border-light);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04); padding: 0.6rem 1rem;
+    }
+    .nav-container {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; flex-wrap: wrap;
+    }
+    .brand-pill {
+      background: var(--fk-yellow); padding: 0.38rem 0.85rem; border-radius: 10px;
+      display: flex; align-items: center; gap: 0.45rem; cursor: pointer;
+      text-decoration: none; color: #111827; flex-shrink: 0;
+    }
+    .brand-pill-icon {
+      background: var(--fk-blue); color: #fff; width: 26px; height: 26px;
+      border-radius: 7px; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 0.88rem;
+    }
+    .brand-pill-title { font-weight: 800; font-size: 1.02rem; color: #0F172A; }
+    .brand-pill-sub { font-size: 0.62rem; font-weight: 800; color: var(--fk-blue); text-transform: uppercase; display: block; line-height: 1; }
+
+    .location-chip {
+      display: flex; align-items: center; gap: 0.35rem;
+      padding: 0.35rem 0.65rem; border-radius: 8px; cursor: pointer;
+      border: 1px solid var(--border-light); background: #F8FAFC; flex-shrink: 0;
+    }
+    .location-chip-sub { font-size: 0.66rem; color: var(--text-muted); display: block; }
+    .location-chip-main { font-size: 0.78rem; font-weight: 800; color: var(--fk-blue); }
+
+    .search-wrapper { position: relative; flex: 1; min-width: 220px; }
+    .search-input-box {
+      display: flex; align-items: center; background: #F0F5FF; border: 1.5px solid #B8D4FF;
+      border-radius: 10px; padding: 0.48rem 0.85rem;
+    }
+    .search-input-box:focus-within {
+      background: #FFFFFF; border-color: var(--fk-blue);
+      box-shadow: 0 0 0 3px rgba(40,116,240,0.15);
+    }
+    .search-input-box input {
+      width: 100%; border: none; outline: none; background: transparent;
+      font-size: 0.88rem; color: var(--text-primary); margin-left: 0.5rem;
+    }
+    .search-rec-dropdown {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #FFFFFF; border: 1px solid var(--border-light);
+      border-radius: 12px; box-shadow: var(--shadow-float);
+      z-index: 190; max-height: 360px; overflow-y: auto; display: none; padding: 0.5rem;
+    }
+    .search-rec-dropdown.open { display: block; }
+    .search-rec-item {
+      display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem 0.6rem;
+      border-radius: 8px; cursor: pointer; transition: background 0.15s ease;
+    }
+    .search-rec-item:hover { background: #F0F5FF; }
+    .search-rec-item img { width: 42px; height: 42px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+    .search-kw-chip {
+      display: inline-block; background: #F1F5F9; color: var(--text-primary);
+      font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 99px;
+      margin: 3px; cursor: pointer;
+    }
+    .search-kw-chip:hover { background: var(--fk-blue); color: #fff; }
+
+    .nav-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .nav-btn {
+      background: #F8FAFC; color: var(--text-primary); border: 1px solid var(--border-light);
+      padding: 0.44rem 0.8rem; border-radius: 8px; font-weight: 700; font-size: 0.82rem;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;
+    }
+    .nav-btn.logged-in { background: var(--fk-blue); color: #FFFFFF; border-color: var(--fk-blue); }
+    .cart-count {
+      background: #FF6161; color: #FFFFFF; font-family: var(--font-mono);
+      font-weight: 800; font-size: 0.7rem; padding: 1px 6px; border-radius: 99px;
+    }
+
+    .quick-portal-bar {
+      background: #0F172A; color: #F8FAFC; padding: 0.45rem 1rem;
+      overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
+    }
+    .quick-portal-inner {
+      max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    }
+    .portal-tab-btn {
+      background: rgba(255,255,255,0.08); color: #E2E8F0; border: 1px solid rgba(255,255,255,0.14);
+      padding: 0.38rem 0.75rem; border-radius: 99px; font-size: 0.76rem; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0;
+    }
+    .portal-tab-btn:hover, .portal-tab-btn.active {
+      background: var(--fk-blue); color: #FFFFFF; border-color: var(--fk-blue);
+    }
+    .portal-badge {
+      background: #FFE500; color: #0F172A; font-size: 0.64rem; font-weight: 900;
+      padding: 1px 6px; border-radius: 99px;
+    }
+    .live-sync-dot {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.7rem; color: #6EE7B7; font-weight: 700;
+    }
+    .pulse-circle {
+      width: 8px; height: 8px; border-radius: 50%; background: #10B981;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: livePulse 2s infinite;
+    }
+    @keyframes livePulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .category-icon-bar {
+      background: #FFFFFF; border-bottom: 1px solid var(--border-light);
+      margin-bottom: 1rem; box-shadow: var(--shadow-sm);
+    }
+    .category-icon-container {
+      max-width: 1400px; margin: 0 auto; padding: 0.55rem 1rem;
+      display: flex; align-items: center; justify-content: flex-start;
+      gap: 1.25rem; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .cat-icon-item {
+      display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+      cursor: pointer; min-width: 72px; padding: 0.2rem 0.4rem;
+      border-bottom: 2.5px solid transparent; flex-shrink: 0;
+    }
+    .cat-icon-item.active, .cat-icon-item:hover { border-bottom-color: var(--fk-blue); }
+    .cat-icon-box {
+      width: 42px; height: 42px; border-radius: 12px; background: #F0F5FF;
+      display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+    }
+    .cat-icon-label { font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+
+    /* ==========================================================================
+       2. MAIN CONTAINER, CARDS & VERTICAL STATUS STEPPER (N26 GREEN TICK STYLE)
+       ========================================================================== */
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 0 1rem 3.5rem; }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* N26-Style Vertical Timeline Stepper (Image 2 Reference) */
+    .v-stepper {
+      display: flex; flex-direction: column; margin: 1rem 0;
+      padding: 1rem 1.15rem; background: #FAFAFA;
+      border: 1px solid var(--border-light); border-radius: 14px;
+    }
+    .v-step {
+      display: flex; align-items: flex-start; gap: 0.95rem;
+      position: relative; padding-bottom: 1.35rem;
+    }
+    .v-step:last-child { padding-bottom: 0; }
+    .v-step-line {
+      position: absolute; left: 14px; top: 30px; bottom: 0;
+      width: 2.5px; background: #D1D5DB; z-index: 1;
+    }
+    .v-step.completed .v-step-line {
+      background: #2E8B78; /* Solid green line for completed steps */
+    }
+    .v-step:last-child .v-step-line { display: none; }
+    .v-step-circle {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid #CBD5E1; background: #FFFFFF;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 900; color: transparent;
+      z-index: 2; flex-shrink: 0; transition: all 0.25s ease;
+    }
+    .v-step.completed .v-step-circle {
+      background: #2E8B78; border-color: #2E8B78; color: #FFFFFF;
+    }
+    .v-step.active .v-step-circle {
+      border-color: var(--fk-blue); background: #EFF6FF; color: var(--fk-blue);
+      box-shadow: 0 0 0 4px rgba(40,116,240,0.15);
+    }
+    .v-step.error .v-step-circle {
+      background: var(--accent-danger); border-color: var(--accent-danger); color: #FFFFFF;
+    }
+    .v-step-content { flex: 1; padding-top: 3px; }
+    .v-step-title { font-size: 0.92rem; font-weight: 700; color: #6B7280; }
+    .v-step.completed .v-step-title, .v-step.active .v-step-title { color: #111827; }
+    .v-step-sub { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Password Input with Eye Symbol Toggle */
+    .pw-field-wrap { position: relative; display: flex; align-items: center; width: 100%; }
+    .pw-field-wrap input { padding-right: 2.6rem !important; width: 100%; }
+    .pw-eye-btn {
+      position: absolute; right: 8px; background: transparent; border: none;
+      cursor: pointer; font-size: 1rem; color: var(--text-muted);
+      padding: 4px; display: flex; align-items: center; justify-content: center;
+    }
+    .pw-eye-btn:hover { color: var(--fk-blue); }
+
+    /* Storefront Cards */
+    .promo-banner-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 0.9rem; margin-bottom: 1.15rem;
+    }
+    .promo-card {
+      border-radius: 14px; padding: 1.15rem; color: #FFFFFF;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 0.75rem; min-height: 165px; cursor: pointer; box-shadow: var(--shadow-card);
+    }
+    .promo-card-1 { background: linear-gradient(125deg, #D90429 0%, #FF7B00 100%); }
+    .promo-card-2 { background: linear-gradient(125deg, #7209B7 0%, #F72585 100%); }
+    .promo-card-3 { background: linear-gradient(125deg, #003566 0%, #0077B6 100%); }
+    .promo-badge {
+      display: inline-block; background: #FFE500; color: #0F172A;
+      font-size: 0.64rem; font-weight: 900; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 99px; margin-bottom: 0.35rem;
+    }
+    .promo-title { font-size: 1.12rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.3rem; }
+    .promo-price-tag {
+      font-size: 0.84rem; font-weight: 800; background: rgba(0,0,0,0.25);
+      padding: 3px 8px; border-radius: 6px; display: inline-block; margin-bottom: 0.45rem;
+    }
+    .promo-img {
+      width: 96px; height: 96px; object-fit: cover; border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.6); flex-shrink: 0;
+    }
+
+    .shelf-section {
+      background: #FFFFFF; border-radius: 14px; padding: 1.15rem;
+      box-shadow: var(--shadow-sm); margin-bottom: 1.25rem;
+    }
+    .shelf-header {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 0.75rem; padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border-light); margin-bottom: 1rem;
+    }
+    .shops-strip {
+      display: flex; align-items: center; gap: 0.5rem;
+      overflow-x: auto; padding-bottom: 0.65rem; margin-bottom: 0.75rem;
+    }
+    .shop-chip {
+      display: flex; align-items: center; gap: 0.35rem; background: #F8FAFC;
+      border: 1px solid var(--border-light); padding: 0.35rem 0.8rem;
+      border-radius: 99px; cursor: pointer; white-space: nowrap; font-size: 0.76rem; font-weight: 700;
+    }
+    .shop-chip:hover { border-color: var(--fk-blue); background: #F0F5FF; color: var(--fk-blue); }
+    .verified-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-emerald); }
+
+    .product-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 1rem;
+    }
+    .product-card {
+      background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 12px;
+      overflow: hidden; display: flex; flex-direction: column; cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .product-card:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,0.08); }
+    .product-img-wrap { position: relative; height: 195px; background: #F8FAFC; overflow: hidden; }
+    .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .shop-badge-overlay {
+      position: absolute; bottom: 8px; left: 8px; background: rgba(255,255,255,0.96);
+      color: var(--fk-blue); font-size: 0.68rem; font-weight: 800;
+      padding: 4px 8px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      cursor: pointer; text-decoration: underline;
+    }
+    .shop-badge-overlay:hover { background: var(--fk-blue); color: #fff; }
+    .product-body { padding: 0.85rem; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
+    .product-title { font-size: 0.9rem; font-weight: 600; margin: 0.2rem 0 0.4rem; }
+    .price-row { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
+    .product-price { font-size: 1.08rem; font-weight: 800; }
+    .mrp-strike { font-size: 0.78rem; color: var(--text-muted); text-decoration: line-through; }
+    .discount-tag { font-size: 0.75rem; font-weight: 800; color: #388E3C; }
+    .zone-shipping-pill {
+      display: inline-block; margin-top: 0.35rem; font-size: 0.7rem; font-weight: 700;
+      background: #EEF2FF; color: #3730A3; padding: 2px 7px; border-radius: 5px;
+    }
+    .card-quick-actions {
+      display: flex; gap: 0.45rem; margin-top: 0.7rem; padding-top: 0.6rem; border-top: 1px solid #F1F5F9;
+    }
+
+    /* Instagram-Style 3-Column Shop Profile Grid */
+    .insta-shop-shell {
+      max-width: 935px; margin: 0 auto; background: #FFFFFF;
+      border: 1px solid var(--border-light); border-radius: 16px;
+      overflow: hidden; box-shadow: var(--shadow-card);
+    }
+    .insta-shop-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 1.2rem; border-bottom: 1px solid var(--border-light);
+    }
+    .insta-shop-header {
+      display: flex; align-items: center; gap: 1.25rem;
+      padding: 1.25rem; border-bottom: 1px solid var(--border-light); flex-wrap: wrap;
+    }
+    .insta-shop-avatar {
+      width: 74px; height: 74px; border-radius: 50%;
+      background: linear-gradient(135deg, #2874F0, #7209B7); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; font-weight: 900; border: 3px solid #E0E7FF; flex-shrink: 0;
+    }
+    .insta-icon-tabs {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      border-bottom: 1px solid var(--border-light); background: #FAFAFA;
+    }
+    .insta-icon-tab {
+      padding: 0.7rem; text-align: center; font-size: 0.82rem; font-weight: 800;
+      color: var(--text-muted); cursor: pointer; border-bottom: 2.5px solid transparent;
+    }
+    .insta-icon-tab.active { color: var(--text-primary); border-bottom-color: #111827; background: #fff; }
+    .insta-photo-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: #E5E7EB;
+    }
+    .insta-grid-tile {
+      position: relative; aspect-ratio: 1 / 1; background: #F8FAFC;
+      overflow: hidden; cursor: pointer;
+    }
+    .insta-grid-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease; }
+    .insta-grid-tile:hover img { transform: scale(1.06); }
+    .insta-tile-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.1) 55%, transparent 100%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0.6rem; color: #FFFFFF;
+    }
+    .insta-multi-badge {
+      position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.65);
+      color: #fff; font-size: 0.68rem; font-weight: 800; padding: 2px 6px; border-radius: 5px;
+    }
+
+    /* Buttons, Forms & Reviews */
+    .btn-primary {
+      background: var(--fk-blue); color: #FFFFFF; border: none; font-weight: 700;
+      font-size: 0.8rem; padding: 0.5rem 0.85rem; border-radius: 8px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+    }
+    .btn-buy-orange {
+      background: #FB641B; color: #FFFFFF; border: none; font-weight: 700;
+      font-size: 0.8rem; padding: 0.45rem 0.75rem; border-radius: 6px; cursor: pointer; flex: 1;
+    }
+    .btn-outline-sm {
+      border: 1px solid var(--border-light); background: #FFFFFF; color: var(--text-primary);
+      font-weight: 600; font-size: 0.76rem; padding: 0.4rem 0.7rem; border-radius: 6px; cursor: pointer;
+    }
+    .btn-danger-sm {
+      border: 1px solid #FECACA; background: #FEF2F2; color: #DC2626;
+      font-weight: 700; font-size: 0.76rem; padding: 0.4rem 0.7rem; border-radius: 6px; cursor: pointer;
+    }
+    .form-card {
+      background: #FFFFFF; border: 1px solid var(--border-light); border-radius: 14px;
+      padding: 1.15rem; box-shadow: var(--shadow-sm);
+    }
+    .form-group { margin-bottom: 0.7rem; }
+    .form-group label { display: block; font-size: 0.76rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.25rem; }
+    .light-input, .light-select {
+      width: 100%; padding: 0.48rem 0.7rem; border: 1.5px solid var(--border-light);
+      border-radius: 8px; font-size: 0.84rem; outline: none;
+    }
+    .bento-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+    .pdp-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.5rem; background: #fff; border-radius: 14px; padding: 1.25rem; }
+    .pdp-main-img { width: 100%; height: 360px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border-light); }
+    .pdp-thumb-strip { display: flex; gap: 0.5rem; margin-top: 0.65rem; overflow-x: auto; }
+    .pdp-thumb {
+      width: 64px; height: 64px; object-fit: cover; border-radius: 8px;
+      border: 2px solid var(--border-light); cursor: pointer; flex-shrink: 0;
+    }
+    .pdp-thumb.active { border-color: var(--fk-blue); }
+
+    .upload-preview-strip { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .upload-preview-thumb {
+      position: relative; width: 68px; height: 68px; border-radius: 8px;
+      border: 1px solid var(--border-light); overflow: hidden; background: #000;
+    }
+    .upload-preview-thumb img, .upload-preview-thumb video { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Admin Sub-Navigation */
+    .admin-subnav {
+      display: flex; gap: 0.45rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1rem;
+    }
+    .admin-subtab {
+      background: #FFFFFF; border: 1.5px solid var(--border-light); color: var(--text-secondary);
+      padding: 0.48rem 0.9rem; border-radius: 10px; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+    }
+    .admin-subtab.active { background: var(--fk-blue); color: #FFFFFF; border-color: var(--fk-blue); }
+    .admin-pane { display: none; }
+    .admin-pane.active { display: block; }
+
+    /* Slide-over Cart Drawer */
+    .drawer-backdrop {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 200;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+    .cart-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px;
+      background: #FFFFFF; z-index: 210; transform: translateX(100%);
+      transition: transform 0.25s ease; display: flex; flex-direction: column;
+    }
+    .cart-drawer.open { transform: translateX(0); }
+    .drawer-header { padding: 1rem 1.15rem; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 1rem 1.15rem; display: flex; flex-direction: column; gap: 0.65rem; }
+    .drawer-footer { padding: 1rem 1.15rem; border-top: 1px solid var(--border-light); background: #F8FAFC; font-size: 0.82rem; }
+    .cart-item-row { display: flex; gap: 0.65rem; padding: 0.55rem; background: #fff; border: 1px solid var(--border-light); border-radius: 8px; align-items: center; }
+    .cart-item-row img { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.76);
+      backdrop-filter: blur(5px); z-index: 300; display: none;
+      align-items: flex-start; justify-content: center;
+      padding: 1rem; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .modal-overlay.open { display: flex; }
+    .payment-modal {
+      width: 100%; max-width: 980px; margin: auto;
+      background: var(--bg-obsidian); color: #F8FAFC;
+      border: 1px solid var(--border-dark); border-radius: 18px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.65);
+      display: grid; grid-template-columns: 1fr 1.25fr; overflow: hidden;
+    }
+    .pay-summary-pane {
+      background: #162033; padding: 1.2rem; border-right: 1px solid var(--border-dark);
+      display: flex; flex-direction: column; justify-content: space-between; gap: 0.75rem;
+    }
+    .pay-interactive-pane {
+      padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .pay-amount-box {
+      background: rgba(79,70,229,0.16); border: 1px solid rgba(99,102,241,0.4);
+      padding: 0.75rem 0.9rem; border-radius: 10px; margin: 0.4rem 0;
+    }
+    .delivery-address-box {
+      background: rgba(15,23,42,0.7); border: 1px solid #334155;
+      border-radius: 10px; padding: 0.75rem;
+    }
+    .address-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-top: 0.45rem; }
+    .addr-input, .dark-input {
+      width: 100%; background: #0F172A; border: 1.5px solid #334155;
+      color: #F8FAFC; padding: 0.48rem 0.65rem; border-radius: 7px; font-size: 0.8rem; outline: none;
+    }
+    .pay-method-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; margin-bottom: 0.75rem; }
+    .pay-tab-btn {
+      background: var(--bg-obsidian-card); border: 1.5px solid var(--border-dark);
+      color: #CBD5E1; padding: 0.45rem 0.25rem; border-radius: 8px; cursor: pointer;
+      font-size: 0.72rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .pay-tab-btn.active { border-color: var(--fk-blue); background: rgba(40,116,240,0.28); color: #fff; }
+    .qr-scanner-container {
+      display: flex; align-items: center; gap: 0.85rem; background: var(--bg-obsidian-card);
+      border: 1px solid var(--border-dark); padding: 0.75rem; border-radius: 12px; margin-bottom: 0.75rem;
+    }
+    .qr-frame { width: 125px; height: 125px; background: #fff; padding: 5px; border-radius: 8px; flex-shrink: 0; }
+    .qr-frame img { width: 100%; height: 100%; display: block; }
+    .direct-upi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-bottom: 0.75rem; }
+    .upi-app-launcher {
+      background: var(--bg-obsidian-card); border: 1.5px solid #334155; border-radius: 8px;
+      padding: 0.55rem 0.65rem; color: #fff; text-decoration: none;
+      display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; font-weight: 700;
+    }
+
+    .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; min-width: 480px; }
+    .data-table th, .data-table td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border-light); text-align: left; }
+    .data-table th { background: #F8FAFC; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-size: 0.66rem; }
+    .status-pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.66rem; font-weight: 800; text-transform: uppercase; }
+    .status-ok { background: var(--accent-emerald-soft); color: var(--accent-emerald); }
+    .status-warn { background: var(--accent-amber-soft); color: var(--accent-amber); }
+    .status-err { background: var(--accent-danger-soft); color: var(--accent-danger); }
+
+    @media (max-width: 920px) {
+      .bento-dashboard, .pdp-grid, .payment-modal { grid-template-columns: 1fr; }
+      .pay-summary-pane { border-right: none; border-bottom: 1px solid var(--border-dark); }
+    }
+    @media (max-width: 600px) {
+      .search-wrapper { order: 3; min-width: 100%; margin-top: 0.25rem; }
+      .address-grid-2, .direct-upi-grid { grid-template-columns: 1fr; }
+      .qr-scanner-container { flex-direction: column; text-align: center; }
+      .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.65rem; }
+      .product-img-wrap { height: 150px; }
+    }
+  </style>
+</head>
+<body onclick="closeSearchRecommendationsOnOutsideClick(event)">
+
+  <!-- ==========================================================================
+       1. TOP NAVBAR WITH LIVE SEARCH RECOMMENDATIONS
+       ========================================================================== -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a class="brand-pill" onclick="handleBrandLogoClick()">
+        <div class="brand-pill-icon">D</div>
+        <div>
+          <span class="brand-pill-title">DropKart</span>
+          <span class="brand-pill-sub" id="brandRoleSubtitle">Explore Plus ✦</span>
+        </div>
+      </a>
+
+      <div class="location-chip" id="headerLocationChip" onclick="promptHeaderLocationChange()">
+        <span>📍</span>
+        <div>
+          <span class="location-chip-sub">Buyer Pincode (Zone Pricing)</span>
+          <span class="location-chip-main" id="headerDeliverSub">400612 (Thane) ▾</span>
+        </div>
+      </div>
+
+      <div class="search-wrapper" id="headerSearchBox">
+        <div class="search-input-box">
+          <span>🔍</span>
+          <input type="text" id="dualSearchInput" autocomplete="off" placeholder="Search products, brands, or keywords for instant recommendations..." oninput="handleSearchWithRecommendations(this.value)" onfocus="handleSearchWithRecommendations(this.value)" />
+        </div>
+        <div class="search-rec-dropdown" id="searchRecDropdown"></div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="nav-btn" id="userAccountBtn" onclick="openAuthModal()">
+          <span>👤</span>
+          <span id="userAccountBtnText">Login</span>
+        </button>
+        <button class="nav-btn" id="headerCartBtn" onclick="toggleCartDrawer(true)">
+          <span>🛒 Cart</span>
+          <span class="cart-count" id="navCartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Customer/Seller Navigation Bar (Hidden for Admin & Delivery Boy) -->
+  <div class="quick-portal-bar" id="customerPortalBar">
+    <div class="quick-portal-inner">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <button class="portal-tab-btn active" id="ptab-storefront" onclick="switchView('storefront')">🛍️ Storefront</button>
+        <button class="portal-tab-btn" id="ptab-tracker" onclick="requireAuth(() => switchView('tracker'))">
+          📦 My Orders &amp; Live Status <span class="portal-badge" id="navOrdersCount">0</span>
+        </button>
+        <button class="portal-tab-btn" id="ptab-seller" onclick="handleProtectedSellerPortal()">
+          🏪 <span id="navSellerBtnLabel">Open Shop</span> <span class="portal-badge" id="navSellerBadge">₹25 Fee</span>
+        </button>
+      </div>
+      <div class="live-sync-dot" title="Auto-updating in real time without page refresh">
+        <span class="pulse-circle"></span>
+        <span>Live Real-Time Sync Active</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Icon Bar -->
+  <nav class="category-icon-bar" id="customerCategoryBar">
+    <div class="category-icon-container" id="dynamicCategoryBarContainer"></div>
+  </nav>
+
+  <!-- ==========================================================================
+       MAIN CONTENT VIEWS
+       ========================================================================== -->
+  <main class="main-container" style="margin-top:0.85rem;">
+
+    <!-- VIEW 1: CUSTOMER STOREFRONT -->
+    <section class="view-section active" id="view-storefront">
+      <div class="promo-banner-grid">
+        <div class="promo-card promo-card-1" onclick="openProductDetailPage('p_101')">
+          <div>
+            <span class="promo-badge">Big Shopping Utsav</span>
+            <div class="promo-title">AeroPods Pro ANC</div>
+            <div class="promo-price-tag">Base ₹1,899 + Zone Shipping</div>
+            <div style="font-size:0.72rem; opacity:0.95;">Origin: Mumbai (400001) • Photo &amp; Video Reviews</div>
+          </div>
+          <img class="promo-img" src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80" alt="Audio" />
+        </div>
+        <div class="promo-card promo-card-2" onclick="openProductDetailPage('p_102')">
+          <div>
+            <span class="promo-badge">Streetwear Fest</span>
+            <div class="promo-title">Cargo Street Jacket</div>
+            <div class="promo-price-tag">Base ₹2,250 • Local Thane</div>
+            <div style="font-size:0.72rem; opacity:0.95;">Origin: Thane (400612) • Local Delivery</div>
+          </div>
+          <img class="promo-img" src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=400&q=80" alt="Jacket" />
+        </div>
+        <div class="promo-card promo-card-3" onclick="handleProtectedSellerPortal()">
+          <div>
+            <span class="promo-badge">Launch Your Business</span>
+            <div class="promo-title">Open Your Own Shop</div>
+            <div class="promo-price-tag">Just ₹25 One-Time Fee</div>
+            <div style="font-size:0.72rem; opacity:0.95;">Pay ₹25 via UPI &amp; List Products →</div>
+          </div>
+          <img class="promo-img" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80" alt="Seller" />
+        </div>
+      </div>
+
+      <div class="shelf-section">
+        <div class="shelf-header">
+          <div>
+            <h2 style="font-size:1.12rem; font-weight:800;" id="activeShelfHeading">All Deals — Dynamic Pincode Zone Pricing</h2>
+            <p style="font-size:0.76rem; color:var(--text-muted);" id="zonePricingExplainText"></p>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <button class="btn-outline-sm" onclick="promptHeaderLocationChange()">📍 Change Buyer Pincode</button>
+            <select id="sortSelect" class="light-select" style="width:auto; padding:0.36rem 0.6rem; font-size:0.76rem;" onchange="renderProductsGrid()">
+              <option value="relevance">Sort: Popularity</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="font-size:0.74rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+          🏪 Click any Verified Shop below to open its full Photo Grid Storefront:
+        </div>
+        <div class="shops-strip" id="shopsStripContainer"></div>
+        <div class="product-grid" id="productGridContainer"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: PRODUCT DETAIL PAGE (GALLERY + PHOTO/VIDEO CUSTOMER REVIEWS) -->
+    <section class="view-section" id="view-pdp">
+      <div style="margin-bottom:0.85rem;">
+        <button class="btn-outline-sm" onclick="switchView('storefront')">← Back to Storefront</button>
+      </div>
+      <div id="pdpContentContainer"></div>
+    </section>
+
+    <!-- VIEW 2B: INSTAGRAM-GRID SHOP PROFILE PAGE -->
+    <section class="view-section" id="view-shop-profile">
+      <div style="max-width:935px; margin:0 auto 0.75rem; display:flex; justify-content:space-between; align-items:center;">
+        <button class="btn-outline-sm" onclick="switchView('storefront')">← Back to All Shops</button>
+        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">Tap any image tile to view product &amp; reviews</span>
+      </div>
+      <div id="shopProfileContentContainer"></div>
+    </section>
+
+    <!-- VIEW 3: CUSTOMER MY ORDERS (LIVE AUTO-UPDATING VERTICAL GREEN-TICK STEPPER) -->
+    <section class="view-section" id="view-tracker">
+      <div class="bento-dashboard" style="margin-bottom:1.15rem;">
+        <div class="form-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.7rem; font-weight:800; color:var(--fk-blue); text-transform:uppercase;">Live Auto-Updating Order Status</span>
+            <span class="live-sync-dot" style="color:var(--accent-emerald);"><span class="pulse-circle"></span> Auto-Syncing Every 3s</span>
+          </div>
+          <h2 style="font-size:1.15rem; margin:0.2rem 0;">📦 My Orders — Live Vertical Status Tracker &amp; OTP</h2>
+          <p style="font-size:0.78rem; color:var(--text-secondary);">
+            Each step turns green with a checkmark (✓) automatically in real time as the Admin verifies your UTR and the Delivery Boy accepts, picks up, and delivers your order—no manual refresh required!
+          </p>
+        </div>
+
+        <div class="form-card">
+          <span style="font-size:0.7rem; font-weight:800; color:var(--accent-amber); text-transform:uppercase;">Customer Care &amp; Dispute Desk</span>
+          <h3 style="font-size:1.02rem; margin:0.2rem 0 0.5rem;">⚖️ Raise an Order Grievance / Refund Request</h3>
+          <form onsubmit="handleCreateGrievance(event)" style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+            <input type="text" id="grvTrackingNo" class="light-input mono" placeholder="Tracking ID (e.g. TRK-2026-...)" style="flex:1; min-width:150px;" required />
+            <input type="text" id="grvIssueText" class="light-input" placeholder="Describe issue (e.g. Delayed / Refund)" style="flex:1.5; min-width:180px;" required />
+            <button type="submit" class="btn-primary">Submit Ticket</button>
+          </form>
+          <div id="customerGrievancesList" style="margin-top:0.65rem; display:flex; flex-direction:column; gap:0.4rem;"></div>
+        </div>
+      </div>
+
+      <div id="ordersListContainer" style="display:flex; flex-direction:column; gap:1rem;"></div>
+    </section>
+
+    <!-- VIEW 4: SELLER HUB -->
+    <section class="view-section" id="view-seller">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+        <h2 id="sellerHubMainTitle">🏪 Seller Hub — Launch &amp; Manage Your Official Shop</h2>
+        <button class="btn-outline-sm" onclick="switchView('storefront')">← Back to Store</button>
+      </div>
+
+      <div id="sellerOwnedShopsBanner" style="margin-bottom:1rem;"></div>
+
+      <div class="bento-dashboard" id="sellerHubGridContainer">
+        <div class="form-card" id="sellerStep1RegisterCard">
+          <span class="status-pill status-warn">Step 1: One-Time ₹25 Onboarding Fee</span>
+          <h3 style="font-size:1.05rem; margin:0.4rem 0 0.65rem;">Register Your Official Shop (₹25 Fee + Admin KYC)</h3>
+
+          <div style="background:#0F172A; color:#fff; padding:0.85rem; border-radius:12px; display:flex; align-items:center; gap:0.85rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=upi%3A%2F%2Fpay%3Fpa%3D8689863793%40fam%26pn%3DDropKart%2520Shop%2520Fee%26am%3D25.00%26cu%3DINR" alt="₹25 Shop Fee QR" style="width:92px; height:92px; border-radius:8px; background:#fff; padding:4px;" />
+            <div style="flex:1; min-width:180px;">
+              <div style="font-size:0.72rem; color:#6EE7B7; font-weight:700;">● Scan &amp; Pay ₹25.00</div>
+              <div style="font-size:1.1rem; font-weight:800;">₹25.00 Shop Registration</div>
+              <div class="mono" style="font-size:0.72rem; color:#94A3B8;">UPI ID: 8689863793@fam</div>
+              <a href="upi://pay?pa=8689863793@fam&pn=DropKart%20Shop%20Fee&am=25.00&cu=INR" class="btn-primary" style="margin-top:0.4rem; padding:0.32rem 0.65rem; font-size:0.72rem; text-decoration:none;">📱 Pay ₹25 via UPI App</a>
+            </div>
+          </div>
+
+          <form onsubmit="handleCreateShopWithFee(event)">
+            <div class="form-group">
+              <label>Shop / Brand Name *</label>
+              <input type="text" id="newShopName" class="light-input" placeholder="e.g. Ajay Tech Hub" required />
+            </div>
+            <div class="address-grid-2">
+              <div class="form-group">
+                <label>Origin City *</label>
+                <input type="text" id="newShopCity" class="light-input" placeholder="Thane" required />
+              </div>
+              <div class="form-group">
+                <label>Seller Origin Pincode (6-Digit) *</label>
+                <input type="text" id="newShopPincode" class="light-input mono" maxlength="6" value="400612" required />
+              </div>
+            </div>
+            <div class="address-grid-2">
+              <div class="form-group">
+                <label>Shop Category *</label>
+                <div style="display:flex; gap:0.35rem;">
+                  <select id="newShopCategory" class="light-select" onchange="toggleCustomShopCategory(this.value)">
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Workspace">Workspace</option>
+                    <option value="CUSTOM">+ Custom Category...</option>
+                  </select>
+                  <button type="button" class="btn-outline-sm" onclick="document.getElementById('newShopCategory').value='CUSTOM'; toggleCustomShopCategory('CUSTOM');">+ Custom</button>
+                </div>
+                <input type="text" id="customShopCategoryInput" class="light-input" style="display:none; margin-top:0.4rem;" placeholder="Type your custom category..." />
+              </div>
+              <div class="form-group">
+                <label>15-Digit GSTIN *</label>
+                <input type="text" id="newShopGstin" class="light-input mono" maxlength="15" value="27AABCE1234F1Z5" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Seller Payout UPI ID *</label>
+              <input type="text" id="newShopUpi" class="light-input mono" value="8689863793@fam" required />
+            </div>
+            <div class="form-group">
+              <label>Enter 12-Digit UTR for ₹25 Payment (Demo: `998877665544`) *</label>
+              <input type="text" id="newShopFeeUtr" class="light-input mono" maxlength="12" placeholder="998877665544" required />
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;">Submit ₹25 UTR for Admin KYC Approval ✓</button>
+          </form>
+        </div>
+
+        <div class="form-card" id="sellerWaitingApprovalCard" style="display:none; background:linear-gradient(135deg,#FFFBEB,#FFFFFF); border:1.5px solid #F59E0B;">
+          <span class="status-pill status-warn">⏳ Waiting for Admin KYC Confirmation (Live Auto-Sync)</span>
+          <h3 style="font-size:1.15rem; margin:0.5rem 0;">Your ₹25 Shop Registration is Submitted!</h3>
+          <p style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:0.85rem;">
+            As soon as the Admin clicks Approve in the KYC Queue, this screen will automatically unlock <strong>Step 2: Add Products to Verified Shop</strong> in real time!
+          </p>
+          <div id="sellerPendingShopDetailsBox" style="background:#FFFFFF; border:1px solid #FCD34D; padding:0.85rem; border-radius:10px; font-size:0.8rem;"></div>
+        </div>
+
+        <div class="form-card" id="sellerStep2AddProductCard" style="display:none; border:1.5px solid #16A34A;">
+          <span class="status-pill status-ok">Step 2: Add Products to Your Verified Shop</span>
+          <h3 style="font-size:1.05rem; margin:0.4rem 0 0.65rem;">Publish Product with Multiple Photos</h3>
+          <form onsubmit="handleAddProduct(event)">
+            <div class="form-group">
+              <label>Your Verified Shop *</label>
+              <select id="prodShopSelect" class="light-select" style="background:#F0FDF4; font-weight:700; color:#166534;" required></select>
+            </div>
+            <div class="form-group">
+              <label>Product Title *</label>
+              <input type="text" id="prodTitle" class="light-input" placeholder="e.g. Wireless Gaming Mouse RGB" required />
+            </div>
+            <div class="address-grid-2">
+              <div class="form-group">
+                <label>Base Selling Price (₹) *</label>
+                <input type="number" id="prodPrice" class="light-input mono" placeholder="1299" min="10" required />
+              </div>
+              <div class="form-group">
+                <label>MRP (₹) *</label>
+                <input type="number" id="prodMrp" class="light-input mono" placeholder="1999" min="10" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Product Category *</label>
+              <div style="display:flex; gap:0.35rem;">
+                <select id="prodCategorySelect" class="light-select" onchange="toggleCustomProdCategory(this.value)">
+                  <option value="SHOP_DEFAULT">Same as My Shop Category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Workspace">Workspace</option>
+                  <option value="CUSTOM">+ Custom Category...</option>
+                </select>
+                <button type="button" class="btn-outline-sm" onclick="document.getElementById('prodCategorySelect').value='CUSTOM'; toggleCustomProdCategory('CUSTOM');">+ Custom</button>
+              </div>
+              <input type="text" id="customProdCategoryInput" class="light-input" style="display:none; margin-top:0.4rem;" placeholder="Enter custom product category..." />
+            </div>
+
+            <div class="form-group">
+              <label>Upload 1 or More Product Images (From PC / Phone) *</label>
+              <input type="file" id="prodImageFilesInput" class="light-input" accept="image/*" multiple onchange="handleProductImageFilesSelected(this.files)" />
+              <div class="upload-preview-strip" id="uploadedImagesPreviewStrip"></div>
+            </div>
+            <div class="form-group">
+              <label>Or Paste Image URL(s) (Comma-separated)</label>
+              <input type="text" id="prodImgUrl" class="light-input" placeholder="https://images.unsplash.com/photo-1..., https://..." />
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;">Publish Product to My Shop →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         VIEW 5: DEDICATED DELIVERY BOY PORTAL (INCLUDES ISSUE PHOTO UPLOAD)
+         ========================================================================== -->
+    <section class="view-section" id="view-delivery">
+      <div class="form-card" style="margin-bottom:1rem; background:linear-gradient(90deg,#ECFDF5,#FFFFFF); border-color:#6EE7B7;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <div>
+            <span class="status-pill status-ok">Dedicated Logistics Console</span>
+            <h2 style="font-size:1.2rem; margin-top:0.2rem;">🛵 Delivery Boy Portal — Accept, Pick Up, OTP &amp; Issue Photo Upload</h2>
+            <p style="font-size:0.78rem; color:var(--text-secondary);">
+              Accept orders, mark picked up, and verify the customer's 6-digit OTP—or upload a photo of any damaged/defective product so the Admin can process a return!
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <span class="live-sync-dot" style="color:var(--accent-emerald);"><span class="pulse-circle"></span> Live Sync</span>
+            <button class="btn-danger-sm" onclick="handleSignOut()">Sign Out Delivery Boy</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="deliveryAssignedOrdersBox" style="display:flex; flex-direction:column; gap:1rem;"></div>
+    </section>
+
+    <!-- ==========================================================================
+         VIEW 6: DEDICATED MASTER ADMIN CONTROL CENTER (INCLUDES ISSUE PHOTO & RETURN)
+         ========================================================================== -->
+    <section class="view-section" id="view-admin">
+      <div class="form-card" style="margin-bottom:1rem; background:linear-gradient(90deg,#FFFBEB,#FFFFFF); border-color:#FCD34D;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <div>
+            <span class="status-pill status-warn">Master Admin Control Center (`admin`)</span>
+            <h2 style="font-size:1.2rem; margin-top:0.2rem;">🛡️ Master Admin Manager — Complete Platform Governance</h2>
+            <p style="font-size:0.78rem; color:var(--text-secondary);">
+              Manage Order UTR Approvals, Delivery Boy Issue Photos &amp; Returns, Seller ₹25 KYC Queue, Vendor Payouts, Catalog Moderation &amp; Gmail SMTP.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <span class="live-sync-dot" style="color:var(--accent-emerald);"><span class="pulse-circle"></span> Live Auto-Sync</span>
+            <button class="btn-danger-sm" onclick="handleSignOut()">Sign Out Admin</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-subnav">
+        <button class="admin-subtab active" id="admtab-orders" onclick="switchAdminSubTab('orders')">1. Order UTR, Issues &amp; Returns</button>
+        <button class="admin-subtab" id="admtab-kyc" onclick="switchAdminSubTab('kyc')">2. Seller ₹25 KYC Queue</button>
+        <button class="admin-subtab" id="admtab-payouts" onclick="switchAdminSubTab('payouts')">3. Vendor Settlements</button>
+        <button class="admin-subtab" id="admtab-catalog" onclick="switchAdminSubTab('catalog')">4. Catalog Moderation</button>
+        <button class="admin-subtab" id="admtab-disputes" onclick="switchAdminSubTab('disputes')">5. Grievance &amp; Disputes</button>
+        <button class="admin-subtab" id="admtab-config" onclick="switchAdminSubTab('config')">6. Zone Rates, Gmail SMTP &amp; Ledger</button>
+      </div>
+
+      <div class="admin-pane active" id="admpane-orders">
+        <div class="form-card">
+          <h3 style="font-size:1.05rem; margin-bottom:0.65rem;">1. Customer Order UTR Verification &amp; Delivery Boy Issue Return Desk</h3>
+          <div id="adminPendingOrdersContainer" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+      </div>
+
+      <div class="admin-pane" id="admpane-kyc">
+        <div class="form-card">
+          <h3 style="font-size:1.05rem; margin-bottom:0.65rem;">2. Seller ₹25 Onboarding Fee &amp; GSTIN KYC Approval Queue</h3>
+          <div id="adminShopKycContainer" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+      </div>
+
+      <div class="admin-pane" id="admpane-payouts">
+        <div class="form-card">
+          <h3 style="font-size:1.05rem; margin-bottom:0.65rem;">3. Weekly Vendor Settlements (Release Escrow After Delivery Boy OTP)</h3>
+          <div id="adminVendorPayoutsContainer" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        </div>
+      </div>
+
+      <div class="admin-pane" id="admpane-catalog">
+        <div class="form-card">
+          <h3 style="font-size:1.05rem; margin-bottom:0.65rem;">4. Storefront Catalog &amp; Product Moderation</h3>
+          <div id="adminCatalogModContainer" style="display:flex; flex-direction:column; gap:0.65rem;"></div>
+        </div>
+      </div>
+
+      <div class="admin-pane" id="admpane-disputes">
+        <div class="form-card">
+          <h3 style="font-size:1.05rem; margin-bottom:0.65rem;">5. Customer Grievance &amp; Dispute Resolution Desk (48h SLA)</h3>
+          <div id="adminGrievancesContainer" style="display:flex; flex-direction:column; gap:0.65rem;"></div>
+        </div>
+      </div>
+
+      <div class="admin-pane" id="admpane-config">
+        <div class="bento-dashboard">
+          <div class="form-card">
+            <h3 style="font-size:1.05rem; margin-bottom:0.65rem;">6A. Master Pricing &amp; Real Gmail OTP Configuration</h3>
+            <form onsubmit="handleAdminUpdateConfig(event)">
+              <div class="address-grid-2">
+                <div class="form-group">
+                  <label>Local City Shipping (₹) *</label>
+                  <input type="number" id="cfgLocalInr" class="light-input mono" value="30" min="0" required />
+                </div>
+                <div class="form-group">
+                  <label>Same-State Regional (₹) *</label>
+                  <input type="number" id="cfgRegionalInr" class="light-input mono" value="50" min="0" required />
+                </div>
+              </div>
+              <div class="address-grid-2">
+                <div class="form-group">
+                  <label>National Inter-State (₹) *</label>
+                  <input type="number" id="cfgNationalInr" class="light-input mono" value="90" min="0" required />
+                </div>
+                <div class="form-group">
+                  <label>Platform Commission (%) *</label>
+                  <input type="number" id="cfgCommissionPct" class="light-input mono" value="10" min="1" max="50" required />
+                </div>
+              </div>
+
+              <div style="background:#EFF6FF; border:1px solid #BFDBFE; padding:0.75rem; border-radius:10px; margin:0.65rem 0;">
+                <div style="font-size:0.76rem; font-weight:800; color:#1E40AF; margin-bottom:0.35rem;">
+                  📧 Real Gmail OTP Sender Setup (Google App Password)
+                </div>
+                <div class="form-group">
+                  <label>Sender Gmail Address</label>
+                  <input type="email" id="cfgSmtpGmailUser" class="light-input mono" placeholder="ajayprajapati78308@gmail.com" />
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>16-Character Google App Password</label>
+                  <div class="pw-field-wrap">
+                    <input type="password" id="cfgSmtpGmailPass" class="light-input mono" placeholder="abcd efgh ijkl mnop" />
+                    <button type="button" class="pw-eye-btn" onclick="togglePasswordVisibility('cfgSmtpGmailPass', this)">👁️</button>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-primary" style="width:100%;">Save Rates &amp; Gmail SMTP Settings ✓</button>
+            </form>
+          </div>
+
+          <div class="form-card">
+            <h3 style="font-size:1.05rem; margin-bottom:0.65rem;">6B. Double-Entry Paise Financial Ledger</h3>
+            <div class="table-scroll" style="max-height:340px; overflow-y:auto;">
+              <table class="data-table">
+                <thead><tr><th>Ref ID</th><th>Account Head</th><th>Debit</th><th>Credit</th></tr></thead>
+                <tbody id="adminLedgerTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       SLIDE-OVER PERSISTENT CART DRAWER
+       ========================================================================== -->
+  <div class="drawer-backdrop" id="cartBackdrop" onclick="toggleCartDrawer(false)"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="drawer-header">
+      <div>
+        <h3 style="font-size:1rem;">🛒 My Saved Cart</h3>
+        <span class="mono" style="font-size:0.7rem; color:var(--accent-emerald);" id="cartPincodeBadge">Synced to Account • 400612</span>
+      </div>
+      <button class="btn-outline-sm" onclick="toggleCartDrawer(false)">✕</button>
+    </div>
+    <div class="drawer-body" id="cartItemsContainer"></div>
+    <div class="drawer-footer">
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+        <span>Items Base Subtotal</span><span class="mono" id="cartSubtotalText">₹0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem; color:var(--fk-blue); font-weight:700;">
+        <span id="cartZoneLabelText">Zone Delivery Fee</span><span class="mono" id="cartDeliveryFeeText">₹0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:1.05rem; font-weight:800; padding-top:0.45rem; border-top:1px solid var(--border-light); margin-bottom:0.75rem;">
+        <span>Grand Total</span><span class="mono" id="cartGrandTotalText">₹0</span>
+      </div>
+      <button class="btn-buy-orange" style="width:100%; padding:0.75rem; font-size:0.9rem; border-radius:8px;" onclick="openCheckoutFromCart()">
+        Proceed to Checkout →
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==========================================================================
+       MODAL 1: LOGIN, SIGN UP (CUSTOMER OR DELIVERY BOY) & FORGET PASSWORD
+       ========================================================================== -->
+  <div class="modal-overlay" id="authModal">
+    <div class="form-card" style="max-width:440px; width:100%; margin:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+        <h3 style="font-size:1.08rem;" id="authModalTitleText">Account Login / Register</h3>
+        <button class="btn-outline-sm" onclick="closeAuthModal()">✕</button>
+      </div>
+
+      <div id="authGateWarningBanner" style="display:none; background:#FEF2F2; border:1px solid #FECACA; color:#991B1B; padding:0.55rem 0.75rem; border-radius:8px; font-size:0.76rem; font-weight:600; margin-bottom:0.75rem;">
+        🔒 Please Login or Create an Account to continue.
+      </div>
+
+      <div id="authTabsBar" style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; background:#F1F5F9; padding:4px; border-radius:8px; margin-bottom:0.85rem;">
+        <button type="button" class="btn-outline-sm" id="authTabSignIn" style="border:none; background:#fff;" onclick="switchAuthTab('signin')">Login</button>
+        <button type="button" class="btn-outline-sm" id="authTabSignUp" style="border:none; background:transparent;" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+
+      <!-- 1A. SIGN IN FORM (WITH EYE ICON & FORGET PASSWORD LINK BELOW) -->
+      <form id="signInForm" onsubmit="handleSignInSubmit(event)">
+        <div class="form-group">
+          <label>Username, Mobile Number, OR Email *</label>
+          <input type="text" id="loginIdentifier" class="light-input" placeholder="Customer, admin, OR delivery" required />
+        </div>
+        <div class="form-group" style="margin-bottom:0.35rem;">
+          <label>Password *</label>
+          <div class="pw-field-wrap">
+            <input type="password" id="loginPassword" class="light-input" placeholder="Enter password" required />
+            <button type="button" class="pw-eye-btn" onclick="togglePasswordVisibility('loginPassword', this)" title="Show / Hide Password">👁️</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:0.75rem;">
+          <a href="javascript:void(0)" onclick="switchAuthTab('forgot')" style="font-size:0.76rem; font-weight:700; color:var(--fk-blue); text-decoration:none;">
+            Forget Password?
+          </a>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; padding:0.65rem;">Login →</button>
+        <div style="margin-top:0.65rem; font-size:0.72rem; color:var(--text-muted); text-align:center;">
+          Admin: <strong class="mono">admin</strong> / <strong class="mono">ajay@#1234</strong><br>
+          Delivery Boy: <strong class="mono">delivery</strong> / <strong class="mono">123456</strong>
+        </div>
+      </form>
+
+      <!-- 1B. CREATE ACCOUNT FORM (INCLUDES CUSTOMER OR DELIVERY BOY OPTION + EYE ICON) -->
+      <form id="signUpForm" onsubmit="handleSignUpSubmit(event)" style="display:none;">
+        <div class="form-group">
+          <label>Select Account Role *</label>
+          <select id="regRoleSelect" class="light-select" style="font-weight:700; color:var(--fk-blue);">
+            <option value="Customer">🛍️ Customer / Seller Account</option>
+            <option value="Delivery Agent">🛵 Delivery Boy Account (Logistics Partner)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="regFullName" class="light-input" placeholder="Ajay Prajapati" required />
+        </div>
+        <div class="address-grid-2">
+          <div class="form-group">
+            <label>Username *</label>
+            <input type="text" id="regUsername" class="light-input mono" placeholder="ajay_06" required />
+          </div>
+          <div class="form-group">
+            <label>10-Digit Mobile *</label>
+            <input type="tel" id="regMobile" class="light-input mono" maxlength="10" placeholder="9988776655" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Gmail Address (Optional now — Mandatory before buying)</label>
+          <input type="email" id="regEmail" class="light-input" placeholder="yourname@gmail.com" />
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <div class="pw-field-wrap">
+            <input type="password" id="regPassword" class="light-input" placeholder="Create password" required />
+            <button type="button" class="pw-eye-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Show / Hide Password">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; padding:0.65rem;">Create Account →</button>
+      </form>
+
+      <!-- 1C. FORGET / REPLACE PASSWORD FORM -->
+      <form id="forgotPasswordForm" onsubmit="handleForgotPasswordSubmit(event)" style="display:none;">
+        <div style="background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; padding:0.55rem 0.75rem; border-radius:8px; font-size:0.75rem; margin-bottom:0.75rem;">
+          🔑 Enter your Username/Mobile/Email, confirm your current password, and set your new password below.
+        </div>
+        <div class="form-group">
+          <label>Username / Mobile Number / Email Address *</label>
+          <input type="text" id="fpIdentifier" class="light-input" placeholder="Enter username, 10-digit mobile, or email" required />
+        </div>
+        <div class="form-group">
+          <label>Confirm Your Current Password *</label>
+          <div class="pw-field-wrap">
+            <input type="password" id="fpCurrentPassword" class="light-input" placeholder="Enter current password" required />
+            <button type="button" class="pw-eye-btn" onclick="togglePasswordVisibility('fpCurrentPassword', this)">👁️</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Create New Password *</label>
+          <div class="pw-field-wrap">
+            <input type="password" id="fpNewPassword" class="light-input" placeholder="Enter new password" required />
+            <button type="button" class="pw-eye-btn" onclick="togglePasswordVisibility('fpNewPassword', this)">👁️</button>
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button type="button" class="btn-outline-sm" style="flex:1;" onclick="switchAuthTab('signin')">← Back to Login</button>
+          <button type="submit" class="btn-primary" style="flex:1.5; padding:0.65rem;">OK (Replace Password) ✓</button>
+        </div>
+      </form>
+
+      <div id="signedInProfileBox" style="display:none;">
+        <div style="background:#F8FAFC; border:1px solid var(--border-light); padding:0.85rem; border-radius:10px; margin-bottom:0.85rem; font-size:0.82rem;">
+          <div><strong>Logged in as:</strong> <span id="profileNameText"></span></div>
+          <div><strong>Role:</strong> <span class="status-pill status-ok" id="profileRoleText"></span></div>
+          <div><strong>Username:</strong> <span class="mono" id="profileUserText"></span></div>
+          <div><strong>Mobile:</strong> <span class="mono" id="profileMobileText"></span></div>
+          <div><strong>Linked Gmail:</strong> <span class="mono" id="profileEmailText"></span></div>
+        </div>
+        <button type="button" class="btn-danger-sm" style="width:100%; padding:0.6rem;" onclick="handleSignOut()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: MANDATORY EMAIL CAPTURE & GMAIL OTP VERIFICATION BEFORE ORDER
+       ========================================================================== -->
+  <div class="modal-overlay" id="mandatoryEmailModal">
+    <div class="form-card" style="max-width:450px; width:100%; margin:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+        <span class="status-pill status-warn">Mandatory for Order &amp; OTP</span>
+        <button class="btn-outline-sm" onclick="closeMandatoryEmailModal()">✕</button>
+      </div>
+      <h3 style="font-size:1.1rem; margin-bottom:0.35rem;">📧 Verify Your Gmail Address</h3>
+      <p style="font-size:0.78rem; color:var(--text-secondary); margin-bottom:0.85rem;">
+        A verified Gmail is required to receive your Order Confirmation &amp; 6-Digit Delivery OTP.
+      </p>
+
+      <div class="form-group">
+        <label>Enter Your Gmail Address *</label>
+        <div style="display:flex; gap:0.45rem;">
+          <input type="email" id="lazyEmailInput" class="light-input" placeholder="yourname@gmail.com" />
+          <button type="button" class="btn-primary" onclick="sendLazyEmailOtp()">Send OTP</button>
+        </div>
+      </div>
+
+      <div id="lazyOtpSentBanner" style="display:none; background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; padding:0.55rem 0.75rem; border-radius:8px; font-size:0.76rem; margin-bottom:0.75rem;"></div>
+
+      <div class="form-group">
+        <label>Enter 6-Digit Gmail OTP *</label>
+        <input type="text" id="lazyEmailOtpInput" class="light-input mono" maxlength="6" placeholder="Enter 6-digit OTP" />
+      </div>
+
+      <button type="button" class="btn-primary" style="width:100%; padding:0.65rem;" onclick="verifyAndSaveLazyEmail()">
+        Verify Email &amp; Continue to Payment →
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: STEP-BY-STEP ADDRESS + PAYMENT MODE + UTR GATEWAY
+       ========================================================================== -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="payment-modal">
+      <div class="pay-summary-pane">
+        <div>
+          <span style="font-size:0.7rem; text-transform:uppercase; color:#94A3B8; font-weight:700;">DropKart SafePay Escrow</span>
+          <div class="pay-amount-box">
+            <div style="font-size:0.72rem; color:#A5B4FC;">Total Payable (Includes Zone Shipping)</div>
+            <div class="mono" id="modalExactAmount" style="font-size:1.55rem; font-weight:800; color:#fff;">₹0.00</div>
+            <div class="mono" id="modalZoneBreakdown" style="font-size:0.72rem; color:#6EE7B7; margin-top:3px;"></div>
+          </div>
+
+          <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#94A3B8; margin-bottom:0.3rem;">Order Summary</div>
+          <div id="modalOrderItemsList" style="max-height:95px; overflow-y:auto; display:flex; flex-direction:column; gap:0.3rem;"></div>
+
+          <div class="delivery-address-box" style="margin-top:0.65rem;">
+            <div style="font-size:0.74rem; font-weight:700; color:#38BDF8; text-transform:uppercase; margin-bottom:0.35rem;">
+              📍 Step 1: Verify Delivery Address &amp; Pincode *
+            </div>
+            <div class="address-grid-2">
+              <input type="text" id="shipReceiverName" class="addr-input" placeholder="Receiver Full Name *" />
+              <input type="tel" id="shipMobile" class="addr-input mono" maxlength="10" placeholder="10-Digit Mobile *" />
+            </div>
+            <input type="text" id="shipStreet" class="addr-input" style="margin-top:0.45rem;" placeholder="Flat/House No., Street, Landmark *" />
+            <div class="address-grid-2">
+              <input type="text" id="shipPincode" class="addr-input mono" maxlength="6" placeholder="6-Digit Pincode *" oninput="handleCheckoutPincodeChange(this.value)" />
+              <input type="text" id="shipCity" class="addr-input" placeholder="City &amp; State *" />
+            </div>
+            <div style="font-size:0.72rem; color:#93C5FD; margin-top:0.4rem;">
+              📧 OTP &amp; Receipt Email: <strong class="mono" id="checkoutVerifiedEmailText"></strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pay-interactive-pane">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">
+            <h3 style="font-size:0.98rem;">Step 2: Select Payment Method</h3>
+            <button class="btn-outline-sm" style="background:transparent; color:#94A3B8; border-color:#334155;" onclick="closePaymentModal()">Cancel ✕</button>
+          </div>
+
+          <div class="pay-method-tabs">
+            <button class="pay-tab-btn active" id="paytab-qr" onclick="switchPaymentTab('qr')"><span>📷</span><span>UPI QR</span></button>
+            <button class="pay-tab-btn" id="paytab-upi" onclick="switchPaymentTab('upi')"><span>📱</span><span>UPI App</span></button>
+            <button class="pay-tab-btn" id="paytab-card" onclick="switchPaymentTab('card')"><span>💳</span><span>Debit Card</span></button>
+            <button class="pay-tab-btn" id="paytab-req" onclick="switchPaymentTab('req')"><span>🔔</span><span>UPI Request</span></button>
+          </div>
+
+          <div id="paymentPaneQR">
+            <div class="qr-scanner-container">
+              <div class="qr-frame">
+                <img id="dynamicQrImage" src="" alt="Dynamic UPI QR" />
+              </div>
+              <div>
+                <div style="font-size:0.7rem; color:#34D399; font-weight:700;">● Live Dynamic Price QR (`8689863793@fam`)</div>
+                <h4 style="font-size:0.88rem; margin:0.2rem 0;">Scan with GPay, PhonePe, Paytm or FamApp</h4>
+                <p style="font-size:0.74rem; color:#94A3B8;">Amount auto-updates when you change your Pincode.</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="paymentPaneDirectUPI" style="display:none;">
+            <div class="direct-upi-grid">
+              <a class="upi-app-launcher" id="launchGPayBtn" href="#"><span>Google Pay</span><span style="color:#10B981;">Open →</span></a>
+              <a class="upi-app-launcher" id="launchPhonePeBtn" href="#"><span>PhonePe</span><span style="color:#10B981;">Open →</span></a>
+              <a class="upi-app-launcher" id="launchPaytmBtn" href="#"><span>Paytm UPI</span><span style="color:#10B981;">Open →</span></a>
+              <a class="upi-app-launcher" id="launchFamPayBtn" href="#"><span>FamApp</span><span style="color:#10B981;">Open →</span></a>
+            </div>
+          </div>
+
+          <div id="paymentPaneCard" style="display:none; margin-bottom:0.75rem;">
+            <div style="display:grid; grid-template-columns:1.4fr 0.8fr 0.8fr; gap:0.45rem;">
+              <input type="text" class="dark-input mono" maxlength="19" placeholder="Debit Card Number" />
+              <input type="text" class="dark-input mono" maxlength="5" placeholder="MM/YY" />
+              <input type="password" class="dark-input mono" maxlength="3" placeholder="CVV" />
+            </div>
+          </div>
+
+          <div id="paymentPaneReq" style="display:none; margin-bottom:0.75rem;">
+            <div style="display:flex; gap:0.45rem;">
+              <input type="text" id="buyerUpiHandleInput" class="dark-input mono" placeholder="Enter your UPI ID (e.g. mobile@ybl)" />
+              <button type="button" class="btn-primary" onclick="alert('✅ Payment collect request sent to your UPI app! Complete payment and enter the 12-digit UTR below.')">Send Request</button>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:0.74rem; color:#FCD34D; margin-bottom:0.25rem; font-weight:700;">
+              Step 3: Enter 12-Digit Transaction / UTR ID (Stored for Admin Verification) *
+            </label>
+            <input type="text" id="utrInputBox" class="dark-input mono" maxlength="12" placeholder="e.g. 429810394812 (12 Digits)" />
+          </div>
+        </div>
+
+        <button class="btn-primary" style="width:100%; margin-top:0.85rem; padding:0.75rem; background:#10B981; color:#052E16; font-weight:800;" onclick="verifyTransactionAndBook()">
+          Submit Order &amp; UTR for Verification ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       APPLICATION JAVASCRIPT
+       ========================================================================== -->
+  <script>
+    const API_BASE = 'http://127.0.0.1:5000';
+    const MASTER_MERCHANT_UPI = '8689863793@fam';
+
+    const PINCODE_DB = {
+      '400612': { city: 'Thane, Maharashtra' },
+      '400001': { city: 'Mumbai, Maharashtra' },
+      '411001': { city: 'Pune, Maharashtra' },
+      '110001': { city: 'New Delhi, Delhi' },
+      '560001': { city: 'Bengaluru, Karnataka' }
+    };
+
+    let platformConfig = {
+      local_shipping_paise: 3000,
+      regional_shipping_paise: 5000,
+      national_shipping_paise: 9000,
+      commission_pct: 10,
+      shop_fee_paise: 2500,
+      smtp_gmail_user: ''
+    };
+
+    let currentUser = JSON.parse(sessionStorage.getItem('dk_v5_session_user')) || null;
+    let buyerPincode = sessionStorage.getItem('dk_v5_pincode') || '400612';
+    let shops = [];
+    let products = [];
+    let cart = [];
+    let orders = [];
+    let ledgerEntries = [];
+    let grievances = [];
+
+    let activeCategoryFilter = 'ALL';
+    let activeCheckoutItems = [];
+    let activePaymentTab = 'qr';
+    let checkoutIsFromCart = false;
+    let pendingAuthCallback = null;
+    let pendingEmailVerifiedCallback = null;
+    let stagedUploadImagesBase64 = [];
+    let stagedReviewMediaList = [];
+    let stagedDeliveryIssueImage = {};
+    let forceShowStep1ShopForm = false;
+    let activeProfileShopId = null;
+    let activeShopProfileMode = 'grid';
+    let activePdpProductId = null;
+    let lastLiveSignature = '';
+
+    // ==========================================================================
+    // PASSWORD EYE SYMBOL TOGGLE
+    // ==========================================================================
+    function togglePasswordVisibility(inputId, btnEl) {
+      const inp = document.getElementById(inputId);
+      if (!inp) return;
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btnEl.textContent = '🙈';
+      } else {
+        inp.type = 'password';
+        btnEl.textContent = '👁️';
+      }
+    }
+
+    // ==========================================================================
+    // DATABASE-PERSISTED USER CART HELPERS
+    // ==========================================================================
+    function getCartStorageKey() {
+      return currentUser ? `dk_v5_cart_${currentUser.id}` : 'dk_v5_cart_guest';
+    }
+
+    function loadUserCart() {
+      cart = JSON.parse(localStorage.getItem(getCartStorageKey())) || [];
+    }
+
+    async function persistCartToBackend() {
+      localStorage.setItem(getCartStorageKey(), JSON.stringify(cart));
+      if (currentUser && currentUser.id) {
+        try {
+          await fetch(`${API_BASE}/api/cart/sync`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: currentUser.id, cart })
+          });
+        } catch (e) {}
+      }
+    }
+
+    function saveLocalState() {
+      if (currentUser) {
+        sessionStorage.setItem('dk_v5_session_user', JSON.stringify(currentUser));
+      } else {
+        sessionStorage.removeItem('dk_v5_session_user');
+      }
+      sessionStorage.setItem('dk_v5_pincode', buyerPincode);
+      localStorage.setItem(getCartStorageKey(), JSON.stringify(cart));
+    }
+
+    function formatPaise(paise) {
+      return '₹' + Math.round(Number(paise) / 100).toLocaleString('en-IN');
+    }
+
+    function getShopById(shopId) {
+      return shops.find(s => s.id === shopId) || shops[0] || { id: 'shop_1', name: 'TechZone Official', pincode: '400001', city: 'Mumbai', category: 'Electronics', upi_id: MASTER_MERCHANT_UPI };
+    }
+
+    // ==========================================================================
+    // LIVE KEYWORD SEARCH RECOMMENDATIONS
+    // ==========================================================================
+    function handleSearchWithRecommendations(rawVal) {
+      const q = (rawVal || '').trim().toLowerCase();
+      renderProductsGrid(q);
+
+      const dropdown = document.getElementById('searchRecDropdown');
+      if (!q) {
+        dropdown.classList.remove('open');
+        return;
+      }
+
+      const matchedProducts = products.filter(p => {
+        if (p.modStatus === 'BLOCKED') return false;
+        const shop = getShopById(p.shopId);
+        return `${p.title} ${p.brand} ${p.category} ${shop.name}`.toLowerCase().includes(q);
+      });
+
+      // Extract related keyword suggestions
+      const relatedKeywords = new Set();
+      matchedProducts.forEach(p => {
+        relatedKeywords.add(p.brand);
+        relatedKeywords.add(p.category);
+        p.title.split(/\s+/).forEach(w => {
+          const cleanW = w.replace(/[^a-zA-Z0-9]/g, '');
+          if (cleanW.length > 3 && cleanW.toLowerCase().includes(q)) {
+            relatedKeywords.add(cleanW);
+          }
+        });
+      });
+
+      let html = '';
+      if (relatedKeywords.size > 0) {
+        html += `
+          <div style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; padding:0.25rem 0.5rem;">
+            Recommended Keywords
+          </div>
+          <div style="padding:0.2rem 0.4rem 0.5rem;">
+            ${Array.from(relatedKeywords).slice(0, 6).map(kw => `
+              <span class="search-kw-chip" onclick="applyRecommendedKeyword('${kw}')">🔍 ${kw}</span>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      html += `
+        <div style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; padding:0.25rem 0.5rem;">
+          Recommended Products (${matchedProducts.length})
+        </div>
+      `;
+
+      if (matchedProducts.length === 0) {
+        html += `<div style="padding:0.75rem; font-size:0.8rem; color:var(--text-muted);">No matching products found for "${rawVal}".</div>`;
+      } else {
+        html += matchedProducts.slice(0, 6).map(p => {
+          const shop = getShopById(p.shopId);
+          const z = calculateZoneDeliveryPaise(shop.pincode, buyerPincode);
+          return `
+            <div class="search-rec-item" onclick="openProductDetailPage('${p.id}'); document.getElementById('searchRecDropdown').classList.remove('open');">
+              <img src="${p.images[0]}" alt="${p.title}" />
+              <div style="flex:1; min-width:0;">
+                <div style="font-size:0.82rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.title}</div>
+                <div style="font-size:0.7rem; color:var(--text-muted);">${p.brand} • ${p.category} • 🏪 ${shop.name}</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="mono" style="font-size:0.84rem; font-weight:800; color:var(--fk-blue);">${formatPaise(p.pricePaise)}</div>
+                <div style="font-size:0.65rem; color:var(--text-muted);">+${formatPaise(z.feePaise)} ship</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      dropdown.innerHTML = html;
+      dropdown.classList.add('open');
+    }
+
+    function applyRecommendedKeyword(kw) {
+      const inp = document.getElementById('dualSearchInput');
+      inp.value = kw;
+      document.getElementById('searchRecDropdown').classList.remove('open');
+      switchView('storefront');
+      renderProductsGrid(kw);
+    }
+
+    function closeSearchRecommendationsOnOutsideClick(e) {
+      const wrap = document.getElementById('headerSearchBox');
+      if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('searchRecDropdown').classList.remove('open');
+      }
+    }
+
+    // ==========================================================================
+    // STRICT ROLE-BASED ACCESS & AUTOMATIC PAGE LOCKING
+    // ==========================================================================
+    function enforceRoleLayoutAndRouting(navigateHome = false) {
+      const isAdmin = currentUser && currentUser.role === 'Super admin';
+      const isDelivery = currentUser && currentUser.role === 'Delivery Agent';
+
+      document.getElementById('customerPortalBar').style.display = (isAdmin || isDelivery) ? 'none' : 'block';
+      document.getElementById('customerCategoryBar').style.display = (isAdmin || isDelivery) ? 'none' : 'block';
+      document.getElementById('headerLocationChip').style.display = (isAdmin || isDelivery) ? 'none' : 'flex';
+      document.getElementById('headerSearchBox').style.display = (isAdmin || isDelivery) ? 'none' : 'block';
+      document.getElementById('headerCartBtn').style.display = (isAdmin || isDelivery) ? 'none' : 'inline-flex';
+
+      const sub = document.getElementById('brandRoleSubtitle');
+      if (isAdmin) {
+        sub.textContent = 'Admin Manager ✦';
+        if (navigateHome) switchView('admin');
+      } else if (isDelivery) {
+        sub.textContent = 'Delivery Partner ✦';
+        if (navigateHome) switchView('delivery');
+      } else {
+        sub.textContent = 'Explore Plus ✦';
+        if (navigateHome) switchView('storefront');
+      }
+    }
+
+    function handleBrandLogoClick() {
+      if (currentUser && currentUser.role === 'Super admin') return switchView('admin');
+      if (currentUser && currentUser.role === 'Delivery Agent') return switchView('delivery');
+      selectCategoryIcon('ALL');
+    }
+
+    // ==========================================================================
+    // DYNAMIC CATEGORY BAR
+    // ==========================================================================
+    function renderDynamicCategoryBar() {
+      const container = document.getElementById('dynamicCategoryBarContainer');
+      const baseCats = [
+        { key: 'ALL', icon: '🛍️', label: 'All Deals' },
+        { key: 'Electronics', icon: '🎧', label: 'Electronics' },
+        { key: 'Fashion', icon: '👕', label: 'Fashion' },
+        { key: 'Workspace', icon: '💻', label: 'Workspace' }
+      ];
+
+      const knownKeys = new Set(baseCats.map(c => c.key.toLowerCase()));
+      products.forEach(p => {
+        if (p.category && !knownKeys.has(p.category.toLowerCase())) {
+          knownKeys.add(p.category.toLowerCase());
+          baseCats.push({ key: p.category, icon: '✨', label: p.category });
+        }
+      });
+      shops.forEach(s => {
+        if (s.kyc_status === 'VERIFIED' && s.category && !knownKeys.has(s.category.toLowerCase())) {
+          knownKeys.add(s.category.toLowerCase());
+          baseCats.push({ key: s.category, icon: '🏪', label: s.category });
+        }
+      });
+
+      container.innerHTML = baseCats.map(c => `
+        <div class="cat-icon-item ${activeCategoryFilter.toLowerCase() === c.key.toLowerCase() ? 'active' : ''}" onclick="selectCategoryIcon('${c.key}')">
+          <div class="cat-icon-box">${c.icon}</div>
+          <span class="cat-icon-label">${c.label}</span>
+        </div>
+      `).join('');
+    }
+
+    function selectCategoryIcon(catKey) {
+      activeCategoryFilter = catKey;
+      document.getElementById('activeShelfHeading').textContent =
+        catKey === 'ALL' ? 'All Deals — Dynamic Pincode Zone Pricing' : `${catKey} Deals — Dynamic Pincode Zone Pricing`;
+      renderDynamicCategoryBar();
+      switchView('storefront');
+      renderProductsGrid();
+    }
+
+    function toggleCustomShopCategory(val) {
+      const inp = document.getElementById('customShopCategoryInput');
+      inp.style.display = (val === 'CUSTOM') ? 'block' : 'none';
+      if (val === 'CUSTOM') inp.focus();
+    }
+
+    function toggleCustomProdCategory(val) {
+      const inp = document.getElementById('customProdCategoryInput');
+      inp.style.display = (val === 'CUSTOM') ? 'block' : 'none';
+      if (val === 'CUSTOM') inp.focus();
+    }
+
+    // ==========================================================================
+    // DYNAMIC PINCODE ZONE SHIPPING CALCULATOR
+    // ==========================================================================
+    function calculateZoneDeliveryPaise(sellerPincode, customerPincode) {
+      const sPin = String(sellerPincode || '400001').trim();
+      const bPin = String(customerPincode || buyerPincode || '400612').trim();
+      const locPaise = platformConfig.local_shipping_paise || 3000;
+      const regPaise = platformConfig.regional_shipping_paise || 5000;
+      const natPaise = platformConfig.national_shipping_paise || 9000;
+
+      if (sPin.slice(0, 4) === bPin.slice(0, 4)) {
+        return { feePaise: locPaise, zoneName: `Local City Zone (${formatPaise(locPaise)})` };
+      }
+      if (sPin.slice(0, 2) === bPin.slice(0, 2)) {
+        return { feePaise: regPaise, zoneName: `Same State Regional Zone (${formatPaise(regPaise)})` };
+      }
+      return { feePaise: natPaise, zoneName: `National Inter-State Zone (${formatPaise(natPaise)})` };
+    }
+
+    function promptHeaderLocationChange() {
+      const pin = prompt('Enter 6-Digit Buyer Pincode to recalculate Zone Delivery Price (e.g. 400612 Thane, 400001 Mumbai, 110001 Delhi):', buyerPincode);
+      if (!pin || !/^\d{6}$/.test(pin.trim())) {
+        if (pin) alert('Please enter a valid 6-digit Indian Pincode.');
+        return;
+      }
+      buyerPincode = pin.trim();
+      updatePincodeHeaderUI();
+      saveLocalState();
+      renderProductsGrid();
+      updateCartUI();
+    }
+
+    function updatePincodeHeaderUI() {
+      const cityInfo = PINCODE_DB[buyerPincode] ? PINCODE_DB[buyerPincode].city.split(',')[0] : 'India';
+      const loc = formatPaise(platformConfig.local_shipping_paise || 3000);
+      const reg = formatPaise(platformConfig.regional_shipping_paise || 5000);
+      const nat = formatPaise(platformConfig.national_shipping_paise || 9000);
+
+      document.getElementById('headerDeliverSub').textContent = `${buyerPincode} (${cityInfo}) ▾`;
+      document.getElementById('cartPincodeBadge').textContent = `Synced to Account • ${buyerPincode} (${cityInfo})`;
+      document.getElementById('zonePricingExplainText').textContent =
+        `Active Buyer Pincode: ${buyerPincode} (${cityInfo}) — Local City (+${loc}) • Same State (+${reg}) • National (+${nat})`;
+    }
+
+    function switchView(viewName) {
+      if (currentUser && currentUser.role === 'Super admin' && viewName !== 'admin') viewName = 'admin';
+      if (currentUser && currentUser.role === 'Delivery Agent' && viewName !== 'delivery') viewName = 'delivery';
+
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(`view-${viewName}`);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.portal-tab-btn').forEach(b => b.classList.remove('active'));
+      const tabBtn = document.getElementById(`ptab-${viewName}`);
+      if (tabBtn) tabBtn.classList.add('active');
+
+      syncAllFromServer(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchAdminSubTab(subTab) {
+      document.querySelectorAll('.admin-subtab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById(`admtab-${subTab}`).classList.add('active');
+      document.getElementById(`admpane-${subTab}`).classList.add('active');
+    }
+
+    // ==========================================================================
+    // REAL-TIME AUTO-POLLING SYNC (NO MANUAL REFRESH NEEDED)
+    // ==========================================================================
+    async function syncAllFromServer(forceRender = false) {
+      try {
+        const uid = currentUser ? encodeURIComponent(currentUser.id) : '';
+        const urole = currentUser ? encodeURIComponent(currentUser.role) : 'Guest';
+        const res = await fetch(`${API_BASE}/api/bootstrap?user_id=${uid}&role=${urole}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Restore saved cart from backend if user has items in DB and local cart is empty
+        if (currentUser && Array.isArray(data.saved_cart) && data.saved_cart.length > 0 && cart.length === 0) {
+          cart = data.saved_cart;
+          localStorage.setItem(getCartStorageKey(), JSON.stringify(cart));
+          updateCartUI();
+        }
+
+        // Compute signature so background polling only re-renders DOM when data actually changes!
+        const newSig = JSON.stringify({
+          orders: data.orders,
+          shops: data.shops,
+          productsCount: (data.products || []).length,
+          reviewsCount: (data.products || []).reduce((acc, p) => acc + (p.reviews ? p.reviews.length : 0), 0),
+          grievances: data.grievances,
+          ledgerCount: (data.ledger || []).length,
+          config: data.config
+        });
+
+        if (!forceRender && newSig === lastLiveSignature) {
+          return; // Nothing changed — keep user inputs untouched
+        }
+        lastLiveSignature = newSig;
+
+        shops = data.shops || [];
+        products = data.products || [];
+        orders = data.orders || [];
+        ledgerEntries = data.ledger || [];
+        grievances = data.grievances || [];
+        if (data.config) platformConfig = data.config;
+
+        document.getElementById('navOrdersCount').textContent = orders.length;
+        updatePincodeHeaderUI();
+        updateNavbarShopButtonBadge();
+        renderDynamicCategoryBar();
+        renderShopsStrip();
+        renderProductsGrid();
+        renderSellerHubState();
+        renderCustomerOrdersView();
+        renderDeliveryBoyView();
+        renderAdminDashboardAll();
+
+        if (activeProfileShopId && document.getElementById('view-shop-profile').classList.contains('active')) {
+          renderShopProfilePage();
+        }
+      } catch (e) {}
+    }
+
+    function updateNavbarShopButtonBadge() {
+      const lbl = document.getElementById('navSellerBtnLabel');
+      const bdg = document.getElementById('navSellerBadge');
+      if (!currentUser) {
+        lbl.textContent = 'Open Shop';
+        bdg.textContent = '₹25 Fee';
+        return;
+      }
+      const myVerifiedShop = shops.find(s => s.owner_id === currentUser.id && s.kyc_status === 'VERIFIED');
+      const myPendingShop = shops.find(s => s.owner_id === currentUser.id && s.kyc_status === 'PENDING_APPROVAL');
+      if (myVerifiedShop) {
+        lbl.textContent = myVerifiedShop.name;
+        bdg.textContent = 'Verified ✓';
+      } else if (myPendingShop) {
+        lbl.textContent = myPendingShop.name;
+        bdg.textContent = 'Pending KYC';
+      } else {
+        lbl.textContent = 'Open Shop';
+        bdg.textContent = '₹25 Fee';
+      }
+    }
+
+    // ==========================================================================
+    // SHOPS STRIP & INSTAGRAM-STYLE 3-COLUMN SHOP PROFILE VIEW
+    // ==========================================================================
+    function renderShopsStrip() {
+      const verifiedShops = shops.filter(s => s.kyc_status === 'VERIFIED');
+      const container = document.getElementById('shopsStripContainer');
+      container.innerHTML = verifiedShops.map(s => `
+        <div class="shop-chip" onclick="openShopProfilePage('${s.id}')">
+          <span class="verified-dot"></span>
+          <span>🏪 ${s.name}</span>
+          <span class="mono" style="font-size:0.7rem; color:var(--text-muted);">(${s.pincode})</span>
+        </div>
+      `).join('');
+    }
+
+    function openShopProfilePage(shopId) {
+      activeProfileShopId = shopId;
+      renderShopProfilePage();
+      switchView('shop-profile');
+    }
+
+    function setShopProfileMode(mode) {
+      activeShopProfileMode = mode;
+      renderShopProfilePage();
+    }
+
+    function renderShopProfilePage() {
+      const shop = getShopById(activeProfileShopId);
+      const shopProducts = products.filter(p => p.shopId === shop.id && p.modStatus !== 'BLOCKED');
+      const box = document.getElementById('shopProfileContentContainer');
+
+      let totalImagesCount = 0;
+      shopProducts.forEach(p => { totalImagesCount += (p.images ? p.images.length : 1); });
+
+      const gridTilesHtml = shopProducts.length === 0
+        ? `<div style="grid-column:1/-1; padding:3rem 1rem; text-align:center; background:#fff; color:var(--text-muted);">No products uploaded by ${shop.name} yet.</div>`
+        : shopProducts.map(p => {
+            const zoneInfo = calculateZoneDeliveryPaise(shop.pincode, buyerPincode);
+            return `
+              <div class="insta-grid-tile" onclick="openProductDetailPage('${p.id}')">
+                <img src="${p.images[0]}" alt="${p.title}" loading="lazy" />
+                ${p.images.length > 1 ? `<span class="insta-multi-badge">❐ ${p.images.length}</span>` : ''}
+                <div class="insta-tile-overlay">
+                  <div style="font-size:0.78rem; font-weight:800; line-height:1.2;">${p.title}</div>
+                  <div class="mono" style="font-size:0.82rem; font-weight:900; color:#FFE500; margin-top:2px;">
+                    ${formatPaise(p.pricePaise)} <span style="font-size:0.65rem; color:#E2E8F0;">(+${formatPaise(zoneInfo.feePaise)} ship)</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+      const cardsHtml = `
+        <div class="product-grid" style="padding:1rem;">
+          ${shopProducts.map(p => renderSingleProductCardHtml(p)).join('')}
+        </div>
+      `;
+
+      box.innerHTML = `
+        <div class="insta-shop-shell">
+          <div class="insta-shop-topbar">
+            <div style="font-weight:800; font-size:0.95rem;">${shop.name.toLowerCase().replace(/\s+/g, '.')} ✓</div>
+            <span class="status-pill status-ok">Verified Official Shop</span>
+          </div>
+
+          <div class="insta-shop-header">
+            <div class="insta-shop-avatar">${shop.name.charAt(0).toUpperCase()}</div>
+            <div style="flex:1; min-width:200px;">
+              <h2 style="font-size:1.25rem; font-weight:800;">${shop.name}</h2>
+              <div style="font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0;">
+                📍 Origin: <strong>${shop.city} (${shop.pincode})</strong> • Category: <strong>${shop.category}</strong> • GSTIN: <span class="mono">${shop.gstin}</span>
+              </div>
+              <div style="display:flex; gap:1.25rem; margin-top:0.5rem; font-size:0.82rem;">
+                <div><strong>${shopProducts.length}</strong> Products</div>
+                <div><strong>${totalImagesCount}</strong> Uploaded Photos</div>
+                <div><strong>100%</strong> Buyer Escrow Protected</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="insta-icon-tabs">
+            <div class="insta-icon-tab ${activeShopProfileMode === 'grid' ? 'active' : ''}" onclick="setShopProfileMode('grid')">
+              ▦ PHOTO GRID (${shopProducts.length})
+            </div>
+            <div class="insta-icon-tab ${activeShopProfileMode === 'cards' ? 'active' : ''}" onclick="setShopProfileMode('cards')">
+              🛍️ DETAILED CARDS
+            </div>
+          </div>
+
+          ${activeShopProfileMode === 'grid' ? `<div class="insta-photo-grid">${gridTilesHtml}</div>` : cardsHtml}
+        </div>
+      `;
+    }
+
+    // ==========================================================================
+    // STOREFRONT PRODUCT GRID & PDP WITH PHOTO/VIDEO REVIEWS
+    // ==========================================================================
+    function getProductAvgRating(p) {
+      const revs = p.reviews || [];
+      if (revs.length === 0) return { avg: '5.0', count: 0 };
+      const sum = revs.reduce((s, r) => s + Number(r.rating || 5), 0);
+      return { avg: (sum / revs.length).toFixed(1), count: revs.length };
+    }
+
+    function renderSingleProductCardHtml(p) {
+      const shop = getShopById(p.shopId);
+      const zoneInfo = calculateZoneDeliveryPaise(shop.pincode, buyerPincode);
+      const landedTotalPaise = p.pricePaise + zoneInfo.feePaise;
+      const discountPct = Math.max(0, Math.round(((p.mrpPaise - p.pricePaise) / p.mrpPaise) * 100));
+      const rt = getProductAvgRating(p);
+
+      return `
+        <article class="product-card" onclick="openProductDetailPage('${p.id}')">
+          <div class="product-img-wrap">
+            <img src="${p.images[0]}" alt="${p.title}" loading="lazy" />
+            <div class="shop-badge-overlay" onclick="event.stopPropagation(); openShopProfilePage('${shop.id}');" title="Click to view all items uploaded by ${shop.name}">
+              🏪 ${shop.name} (${shop.pincode}) ↗
+            </div>
+          </div>
+          <div class="product-body">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">${p.brand}</span>
+                <span style="background:#388E3C; color:#fff; font-size:0.68rem; font-weight:800; padding:1px 6px; border-radius:4px;">★ ${rt.avg} (${rt.count})</span>
+              </div>
+              <h3 class="product-title">${p.title}</h3>
+              <div class="price-row">
+                <span class="product-price">${formatPaise(p.pricePaise)}</span>
+                <span class="mrp-strike">${formatPaise(p.mrpPaise)}</span>
+                <span class="discount-tag">${discountPct}% off</span>
+              </div>
+              <div class="zone-shipping-pill">
+                📍 To ${buyerPincode}: +${formatPaise(zoneInfo.feePaise)} = <strong>${formatPaise(landedTotalPaise)}</strong>
+              </div>
+            </div>
+            <div class="card-quick-actions" onclick="event.stopPropagation();">
+              <button class="btn-outline-sm" onclick="addToCart('${p.id}')">+ Cart</button>
+              <button class="btn-buy-orange" onclick="buySingleProductNow('${p.id}')">⚡ Buy Now</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderProductsGrid(searchQuery = '') {
+      const grid = document.getElementById('productGridContainer');
+      const q = (searchQuery || document.getElementById('dualSearchInput').value || '').trim().toLowerCase();
+      const sortBy = document.getElementById('sortSelect').value;
+
+      let filtered = products.filter(p => {
+        if (p.modStatus === 'BLOCKED') return false;
+        const shop = getShopById(p.shopId);
+        if (shop.kyc_status && shop.kyc_status !== 'VERIFIED') return false;
+
+        const matchesCat = activeCategoryFilter === 'ALL' ||
+          (p.category && p.category.toLowerCase() === activeCategoryFilter.toLowerCase());
+        const matchesQuery = !q || `${p.title} ${p.brand} ${shop.name} ${p.category}`.toLowerCase().includes(q);
+        return matchesCat && matchesQuery;
+      });
+
+      if (sortBy === 'price_asc') filtered.sort((a, b) => a.pricePaise - b.pricePaise);
+      if (sortBy === 'price_desc') filtered.sort((a, b) => b.pricePaise - a.pricePaise);
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2.5rem; color:var(--text-muted);">No products found.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => renderSingleProductCardHtml(p)).join('');
+    }
+
+    function openProductDetailPage(productId) {
+      activePdpProductId = productId;
+      stagedReviewMediaList = [];
+      const p = products.find(i => i.id === productId);
+      if (!p) return;
+      const shop = getShopById(p.shopId);
+      const zoneInfo = calculateZoneDeliveryPaise(shop.pincode, buyerPincode);
+      const imgs = (p.images && p.images.length > 0) ? p.images : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80'];
+      const revs = p.reviews || [];
+      const rt = getProductAvgRating(p);
+
+      const reviewsHtml = revs.length === 0
+        ? `<div style="color:var(--text-muted); font-size:0.82rem; padding:1rem 0;">No customer reviews yet. Be the first to upload a photo or video review!</div>`
+        : revs.map(r => `
+            <div style="border-bottom:1px solid var(--border-light); padding:0.85rem 0;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <span style="background:#388E3C; color:#fff; font-size:0.72rem; font-weight:800; padding:2px 7px; border-radius:4px;">${r.rating} ★</span>
+                  <strong style="font-size:0.86rem; margin-left:0.4rem;">${r.reviewerName}</strong>
+                  <span class="status-pill status-ok" style="margin-left:0.35rem;">Verified Review</span>
+                </div>
+                <span style="font-size:0.7rem; color:var(--text-muted);">${r.createdAt || ''}</span>
+              </div>
+              <p style="font-size:0.84rem; margin:0.45rem 0;">${r.comment}</p>
+              ${(r.media && r.media.length > 0) ? `
+                <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.45rem;">
+                  ${r.media.map(m => m.type === 'video' ? `
+                    <video src="${m.url}" controls style="width:150px; height:110px; border-radius:8px; object-fit:cover; background:#000; border:1px solid var(--border-light);"></video>
+                  ` : `
+                    <img src="${m.url}" onclick="window.open('${m.url}', '_blank')" style="width:95px; height:95px; border-radius:8px; object-fit:cover; cursor:pointer; border:1px solid var(--border-light);" />
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `).join('');
+
+      document.getElementById('pdpContentContainer').innerHTML = `
+        <div class="pdp-grid">
+          <div>
+            <img class="pdp-main-img" id="pdpActiveMainImage" src="${imgs[0]}" alt="${p.title}" />
+            <div class="pdp-thumb-strip">
+              ${imgs.map((imgUrl, idx) => `
+                <img src="${imgUrl}" class="pdp-thumb ${idx === 0 ? 'active' : ''}" onclick="switchPdpGalleryImage(this, '${imgUrl}')" />
+              `).join('')}
+            </div>
+          </div>
+          <div>
+            <span class="status-pill status-ok" style="cursor:pointer; padding:5px 12px; font-size:0.74rem; text-decoration:underline;" onclick="openShopProfilePage('${shop.id}')">
+              🏪 VERIFIED SELLER: ${shop.name.toUpperCase()} (ORIGIN PINCODE: ${shop.pincode}) — View All Shop Items ↗
+            </span>
+
+            <h1 style="font-size:1.3rem; font-weight:800; margin:0.65rem 0 0.35rem;">${p.title}</h1>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem;">
+              <span style="background:#388E3C; color:#fff; font-size:0.78rem; font-weight:800; padding:2px 8px; border-radius:5px;">★ ${rt.avg}</span>
+              <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">${rt.count} Customer Ratings &amp; Photo/Video Reviews</span>
+            </div>
+
+            <div style="font-size:1.6rem; font-weight:800;">${formatPaise(p.pricePaise)} <span class="mrp-strike" style="font-size:0.95rem;">${formatPaise(p.mrpPaise)}</span></div>
+
+            <div style="margin:0.85rem 0; padding:0.85rem; background:#F0F5FF; border-radius:10px; font-size:0.82rem;">
+              <div><strong>Dynamic Pincode Price Calculation:</strong></div>
+              <div>Seller Origin: <strong class="mono">${shop.city} (${shop.pincode})</strong> ➔ Buyer Pincode: <strong class="mono">${buyerPincode}</strong></div>
+              <div>Zone Shipping Fee: <strong>${formatPaise(zoneInfo.feePaise)}</strong> (${zoneInfo.zoneName})</div>
+              <div style="margin-top:4px; font-size:0.95rem;">Total Landed Price: <strong class="mono" style="color:var(--fk-blue);">${formatPaise(p.pricePaise + zoneInfo.feePaise)}</strong></div>
+            </div>
+
+            <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+              <button class="btn-primary" style="flex:1; padding:0.75rem;" onclick="addToCart('${p.id}')">🛒 ADD TO CART</button>
+              <button class="btn-buy-orange" style="flex:1; padding:0.75rem;" onclick="buySingleProductNow('${p.id}')">⚡ BUY NOW</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOMER PHOTO & VIDEO REVIEWS SECTION -->
+        <div class="bento-dashboard" style="margin-top:1.25rem;">
+          <div class="form-card">
+            <span class="status-pill status-ok">Upload Photo &amp; Video Review</span>
+            <h3 style="font-size:1.05rem; margin:0.4rem 0 0.65rem;">⭐ Rate this Product &amp; Share Photos / Videos</h3>
+            <form onsubmit="handleSubmitProductReview(event, '${p.id}')">
+              <div class="form-group">
+                <label>Your Star Rating *</label>
+                <select id="revRatingSelect" class="light-select" style="font-weight:700; color:#15803D;">
+                  <option value="5">★★★★★ (5/5 — Excellent)</option>
+                  <option value="4">★★★★☆ (4/5 — Very Good)</option>
+                  <option value="3">★★★☆☆ (3/5 — Average)</option>
+                  <option value="2">★★☆☆☆ (2/5 — Below Average)</option>
+                  <option value="1">★☆☆☆☆ (1/5 — Poor)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Review Comment *</label>
+                <input type="text" id="revCommentInput" class="light-input" placeholder="Share your experience with quality, performance & delivery..." required />
+              </div>
+              <div class="form-group">
+                <label>Upload Product Photos &amp; Videos (Optional — Multiple Allowed)</label>
+                <input type="file" id="revMediaInput" class="light-input" accept="image/*,video/*" multiple onchange="handleReviewMediaSelected(this.files)" />
+                <div class="upload-preview-strip" id="revMediaPreviewStrip"></div>
+              </div>
+              <button type="submit" class="btn-primary" style="width:100%;">Submit Customer Review ✓</button>
+            </form>
+          </div>
+
+          <div class="form-card">
+            <h3 style="font-size:1.05rem; margin-bottom:0.5rem;">📸 Customer Reviews &amp; Uploaded Media (${revs.length})</h3>
+            <div style="max-height:360px; overflow-y:auto;">
+              ${reviewsHtml}
+            </div>
+          </div>
+        </div>
+      `;
+      switchView('pdp');
+    }
+
+    function switchPdpGalleryImage(thumbEl, imgSrc) {
+      document.getElementById('pdpActiveMainImage').src = imgSrc;
+      document.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('active'));
+      thumbEl.classList.add('active');
+    }
+
+    function handleReviewMediaSelected(fileList) {
+      stagedReviewMediaList = [];
+      const strip = document.getElementById('revMediaPreviewStrip');
+      if (strip) strip.innerHTML = '';
+
+      Array.from(fileList).forEach(file => {
+        const isVideo = file.type.startsWith('video/');
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const dataUrl = evt.target.result;
+          stagedReviewMediaList.push({ type: isVideo ? 'video' : 'image', url: dataUrl });
+          if (strip) {
+            strip.innerHTML += `
+              <div class="upload-preview-thumb">
+                ${isVideo ? `<video src="${dataUrl}" muted></video>` : `<img src="${dataUrl}" />`}
+              </div>
+            `;
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleSubmitProductReview(e, productId) {
+      e.preventDefault();
+      requireAuth(async () => {
+        const rating = Number(document.getElementById('revRatingSelect').value || 5);
+        const comment = document.getElementById('revCommentInput').value.trim();
+        const res = await fetch(`${API_BASE}/api/products/review`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            product_id: productId,
+            user_id: currentUser.id,
+            reviewer_name: currentUser.full_name || currentUser.username,
+            rating,
+            comment,
+            media: stagedReviewMediaList
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          stagedReviewMediaList = [];
+          await syncAllFromServer(true);
+          openProductDetailPage(productId);
+          alert('✅ Your review and media have been published!');
+        } else {
+          alert(data.error_message || 'Could not submit review');
+        }
+      });
+    }
+
+    // ==========================================================================
+    // SELLER HUB STATE MACHINE
+    // ==========================================================================
+    function renderSellerHubState() {
+      if (!currentUser) return;
+
+      const myShops = shops.filter(s => s.owner_id === currentUser.id);
+      const myVerifiedShops = myShops.filter(s => s.kyc_status === 'VERIFIED');
+      const myPendingShops = myShops.filter(s => s.kyc_status === 'PENDING_APPROVAL');
+
+      const bannerBox = document.getElementById('sellerOwnedShopsBanner');
+      const step1Card = document.getElementById('sellerStep1RegisterCard');
+      const waitCard = document.getElementById('sellerWaitingApprovalCard');
+      const step2Card = document.getElementById('sellerStep2AddProductCard');
+      const gridContainer = document.getElementById('sellerHubGridContainer');
+
+      const sel = document.getElementById('prodShopSelect');
+      if (sel) {
+        sel.innerHTML = myVerifiedShops.map(s => `<option value="${s.id}">🏪 ${s.name} (Origin Pincode: ${s.pincode}) — [VERIFIED ✓]</option>`).join('');
+      }
+
+      if (myVerifiedShops.length > 0) {
+        bannerBox.innerHTML = `
+          <div class="form-card" style="background:linear-gradient(90deg,#ECFDF5,#FFFFFF); border-color:#16A34A; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <span class="status-pill status-ok">✓ Admin Verified Seller Account</span>
+              <h3 style="font-size:1.15rem; margin-top:0.25rem;">
+                Your Official Shop: ${myVerifiedShops.map(s => `<a href="javascript:void(0)" onclick="openShopProfilePage('${s.id}')" style="color:var(--fk-blue); text-decoration:underline;">${s.name} (${s.pincode}) ↗</a>`).join(', ')}
+              </h3>
+              <p style="font-size:0.78rem; color:var(--text-secondary);">Click your shop name above to view your Shop Photo Grid, or upload new products below.</p>
+            </div>
+            <button type="button" class="btn-outline-sm" onclick="forceShowStep1ShopForm = !forceShowStep1ShopForm; renderSellerHubState();">
+              ${forceShowStep1ShopForm ? 'Hide New Shop Form' : '+ Open Another Shop (₹25)'}
+            </button>
+          </div>
+        `;
+
+        step2Card.style.display = 'block';
+        if (myPendingShops.length > 0 && !forceShowStep1ShopForm) {
+          step1Card.style.display = 'none';
+          waitCard.style.display = 'block';
+          renderPendingShopDetails(myPendingShops[0]);
+          gridContainer.style.gridTemplateColumns = '1fr 1fr';
+        } else if (forceShowStep1ShopForm) {
+          step1Card.style.display = 'block';
+          waitCard.style.display = 'none';
+          gridContainer.style.gridTemplateColumns = '1fr 1fr';
+        } else {
+          step1Card.style.display = 'none';
+          waitCard.style.display = 'none';
+          gridContainer.style.gridTemplateColumns = '1fr';
+        }
+      } else if (myPendingShops.length > 0) {
+        bannerBox.innerHTML = '';
+        step1Card.style.display = 'none';
+        waitCard.style.display = 'block';
+        step2Card.style.display = 'none';
+        gridContainer.style.gridTemplateColumns = '1fr';
+        renderPendingShopDetails(myPendingShops[0]);
+      } else {
+        bannerBox.innerHTML = '';
+        step1Card.style.display = 'block';
+        waitCard.style.display = 'none';
+        step2Card.style.display = 'none';
+        gridContainer.style.gridTemplateColumns = '1fr';
+      }
+    }
+
+    function renderPendingShopDetails(shop) {
+      document.getElementById('sellerPendingShopDetailsBox').innerHTML = `
+        <div><strong>Submitted Shop Name:</strong> ${shop.name}</div>
+        <div><strong>Category:</strong> ${shop.category}</div>
+        <div><strong>Origin City &amp; Pincode:</strong> ${shop.city} - ${shop.pincode}</div>
+        <div><strong>GSTIN:</strong> <span class="mono">${shop.gstin}</span></div>
+        <div><strong>₹25 Payment UTR:</strong> <span class="mono">${shop.fee_utr}</span></div>
+        <div><strong>Current KYC Status:</strong> <span class="status-pill status-warn">${shop.kyc_status}</span></div>
+      `;
+    }
+
+    async function handleCreateShopWithFee(e) {
+      e.preventDefault();
+      const name = document.getElementById('newShopName').value.trim();
+      const city = document.getElementById('newShopCity').value.trim();
+      const pincode = document.getElementById('newShopPincode').value.trim();
+      const catSelect = document.getElementById('newShopCategory').value;
+      const customCat = document.getElementById('customShopCategoryInput').value.trim();
+      const category = (catSelect === 'CUSTOM') ? customCat : catSelect;
+      const gstin = document.getElementById('newShopGstin').value.trim().toUpperCase();
+      const upi_id = document.getElementById('newShopUpi').value.trim();
+      const fee_utr = document.getElementById('newShopFeeUtr').value.trim();
+
+      if (!category) return alert('Please enter your custom category name.');
+      if (!/^\d{6}$/.test(pincode)) return alert('Enter a valid 6-digit Seller Origin Pincode.');
+      if (!/^\d{12}$/.test(fee_utr)) return alert('Enter a valid 12-digit UTR for the ₹25 Shop Onboarding Fee.');
+
+      const res = await fetch(`${API_BASE}/api/shops/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner_id: currentUser.id, name, city, pincode, category, gstin, upi_id, fee_utr })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        e.target.reset();
+        forceShowStep1ShopForm = false;
+        await syncAllFromServer(true);
+      } else {
+        alert('❌ ' + (data.error_message || 'Could not create shop'));
+      }
+    }
+
+    function handleProductImageFilesSelected(fileList) {
+      stagedUploadImagesBase64 = [];
+      const strip = document.getElementById('uploadedImagesPreviewStrip');
+      strip.innerHTML = '';
+
+      Array.from(fileList).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const dataUrl = evt.target.result;
+          stagedUploadImagesBase64.push(dataUrl);
+          strip.innerHTML += `<div class="upload-preview-thumb"><img src="${dataUrl}" /></div>`;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleAddProduct(e) {
+      e.preventDefault();
+      const shop_id = document.getElementById('prodShopSelect').value;
+      const title = document.getElementById('prodTitle').value.trim();
+      const priceInr = Number(document.getElementById('prodPrice').value);
+      const mrpInr = Number(document.getElementById('prodMrp').value);
+      const catSel = document.getElementById('prodCategorySelect').value;
+      const customCat = document.getElementById('customProdCategoryInput').value.trim();
+      const shop = getShopById(shop_id);
+
+      let category = shop.category;
+      if (catSel === 'CUSTOM') {
+        if (!customCat) return alert('Please type your custom product category.');
+        category = customCat;
+      } else if (catSel !== 'SHOP_DEFAULT') {
+        category = catSel;
+      }
+
+      const urlInput = document.getElementById('prodImgUrl').value.trim();
+      const pastedUrls = urlInput ? urlInput.split(',').map(u => u.trim()).filter(Boolean) : [];
+      const finalImages = [...stagedUploadImagesBase64, ...pastedUrls];
+
+      if (finalImages.length === 0) {
+        return alert('Please upload at least 1 product photo from your device or paste an image URL.');
+      }
+
+      const res = await fetch(`${API_BASE}/api/products/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          owner_id: currentUser.id,
+          shop_id,
+          title,
+          category,
+          price_paise: Math.round(priceInr * 100),
+          mrp_paise: Math.round(mrpInr * 100),
+          images: finalImages
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        e.target.reset();
+        stagedUploadImagesBase64 = [];
+        document.getElementById('uploadedImagesPreviewStrip').innerHTML = '';
+        await syncAllFromServer(true);
+        alert(`✅ Product "${title}" published to ${shop.name}!`);
+        openShopProfilePage(shop_id);
+      } else {
+        alert('❌ ' + (data.error_message || 'Failed to publish product'));
+      }
+    }
+
+    // ==========================================================================
+    // PERSISTENT CART & CHECKOUT
+    // ==========================================================================
+    function addToCart(productId) {
+      requireAuth(async () => {
+        const existing = cart.find(i => i.productId === productId);
+        if (existing) existing.qty += 1;
+        else cart.push({ productId, qty: 1 });
+        saveLocalState();
+        updateCartUI();
+        await persistCartToBackend();
+        alert('🛒 Added to your saved account cart!');
+      });
+    }
+
+    async function changeCartQty(productId, delta) {
+      const idx = cart.findIndex(i => i.productId === productId);
+      if (idx === -1) return;
+      cart[idx].qty += delta;
+      if (cart[idx].qty <= 0) cart.splice(idx, 1);
+      saveLocalState();
+      updateCartUI();
+      await persistCartToBackend();
+    }
+
+    function computeOrderTotals(itemsList, customBuyerPin = null) {
+      const activePin = customBuyerPin || buyerPincode;
+      let subtotalPaise = 0;
+      let deliveryFeePaise = 0;
+      let sellerPincode = '400001';
+      let shopId = 'shop_1';
+      let zoneLabel = 'Local Zone';
+
+      itemsList.forEach(item => {
+        const prod = products.find(p => p.id === item.productId);
+        if (!prod) return;
+        const shop = getShopById(prod.shopId);
+        sellerPincode = shop.pincode;
+        shopId = shop.id;
+        subtotalPaise += prod.pricePaise * item.qty;
+        const z = calculateZoneDeliveryPaise(shop.pincode, activePin);
+        deliveryFeePaise += z.feePaise;
+        zoneLabel = z.zoneName;
+      });
+
+      return {
+        subtotalPaise,
+        deliveryFeePaise,
+        totalPaise: subtotalPaise + deliveryFeePaise,
+        sellerPincode,
+        shopId,
+        zoneLabel
+      };
+    }
+
+    function updateCartUI() {
+      document.getElementById('navCartCount').textContent = cart.reduce((s, i) => s + i.qty, 0);
+      const box = document.getElementById('cartItemsContainer');
+      if (cart.length === 0) {
+        box.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:2rem 0.5rem;">Your saved cart is empty.</div>`;
+        document.getElementById('cartSubtotalText').textContent = '₹0';
+        document.getElementById('cartDeliveryFeeText').textContent = '₹0';
+        document.getElementById('cartGrandTotalText').textContent = '₹0';
+        return;
+      }
+
+      box.innerHTML = cart.map(item => {
+        const prod = products.find(p => p.id === item.productId);
+        if (!prod) return '';
+        return `
+          <div class="cart-item-row">
+            <img src="${prod.images[0]}" alt="${prod.title}" />
+            <div style="flex:1;">
+              <div style="font-size:0.8rem; font-weight:700;">${prod.title}</div>
+              <div class="mono" style="font-size:0.76rem;">${formatPaise(prod.pricePaise * item.qty)}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <button class="btn-outline-sm" style="padding:2px 7px;" onclick="changeCartQty('${prod.id}', -1)">−</button>
+              <span class="mono" style="font-size:0.78rem; padding:0 4px;">${item.qty}</span>
+              <button class="btn-outline-sm" style="padding:2px 7px;" onclick="changeCartQty('${prod.id}', 1)">+</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const t = computeOrderTotals(cart);
+      document.getElementById('cartSubtotalText').textContent = formatPaise(t.subtotalPaise);
+      document.getElementById('cartZoneLabelText').textContent = t.zoneLabel;
+      document.getElementById('cartDeliveryFeeText').textContent = '+' + formatPaise(t.deliveryFeePaise);
+      document.getElementById('cartGrandTotalText').textContent = formatPaise(t.totalPaise);
+    }
+
+    function toggleCartDrawer(open) {
+      document.getElementById('cartBackdrop').classList.toggle('open', open);
+      document.getElementById('cartDrawer').classList.toggle('open', open);
+      if (open) updateCartUI();
+    }
+
+    // ==========================================================================
+    // MANDATORY EMAIL CHECK & OTP BEFORE BUYING
+    // ==========================================================================
+    function ensureMandatoryEmailAndProceed(callback) {
+      requireAuth(() => {
+        if (currentUser.email && currentUser.email.includes('@')) {
+          callback();
+        } else {
+          pendingEmailVerifiedCallback = callback;
+          document.getElementById('lazyEmailInput').value = '';
+          document.getElementById('lazyEmailOtpInput').value = '';
+          document.getElementById('lazyOtpSentBanner').style.display = 'none';
+          document.getElementById('mandatoryEmailModal').classList.add('open');
+        }
+      });
+    }
+
+    function closeMandatoryEmailModal() {
+      document.getElementById('mandatoryEmailModal').classList.remove('open');
+    }
+
+    async function sendLazyEmailOtp() {
+      const email = document.getElementById('lazyEmailInput').value.trim().toLowerCase();
+      if (!email || !email.includes('@')) return alert('Please enter a valid Gmail address.');
+
+      const res = await fetch(`${API_BASE}/api/auth/send-email-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const banner = document.getElementById('lazyOtpSentBanner');
+        banner.style.display = 'block';
+        if (data.sent_real_email) {
+          banner.innerHTML = `✅ Real Gmail OTP sent to <strong>${email}</strong>! Check your Gmail Inbox (or use backup code <strong class="mono">${data.demo_otp}</strong>).`;
+        } else {
+          banner.innerHTML = `ℹ️ ${data.delivery_mode}<br>Your 6-Digit Verification OTP is: <strong class="mono" style="font-size:0.95rem;">${data.demo_otp}</strong>`;
+        }
+        document.getElementById('lazyEmailOtpInput').value = data.demo_otp;
+      } else {
+        alert(data.error_message || 'Failed to send OTP');
+      }
+    }
+
+    async function verifyAndSaveLazyEmail() {
+      const email = document.getElementById('lazyEmailInput').value.trim().toLowerCase();
+      const otp = document.getElementById('lazyEmailOtpInput').value.trim();
+      if (!email || !otp) return alert('Enter both Gmail and 6-digit OTP.');
+
+      const res = await fetch(`${API_BASE}/api/user/verify-and-save-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: currentUser.id, email, otp })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        currentUser = data.user_data;
+        saveLocalState();
+        closeMandatoryEmailModal();
+        alert(`✅ Gmail "${email}" verified and permanently linked to your account!`);
+        if (pendingEmailVerifiedCallback) {
+          const fn = pendingEmailVerifiedCallback;
+          pendingEmailVerifiedCallback = null;
+          fn();
+        }
+      } else {
+        alert(data.error_message || 'Invalid OTP');
+      }
+    }
+
+    function buySingleProductNow(productId) {
+      ensureMandatoryEmailAndProceed(() => {
+        checkoutIsFromCart = false;
+        activeCheckoutItems = [{ productId, qty: 1 }];
+        openPaymentGatewayModal();
+      });
+    }
+
+    function openCheckoutFromCart() {
+      if (cart.length === 0) return;
+      ensureMandatoryEmailAndProceed(() => {
+        checkoutIsFromCart = true;
+        activeCheckoutItems = [...cart];
+        toggleCartDrawer(false);
+        openPaymentGatewayModal();
+      });
+    }
+
+    function openPaymentGatewayModal() {
+      document.getElementById('shipReceiverName').value = currentUser.full_name || currentUser.fullName || '';
+      document.getElementById('shipMobile').value = currentUser.mobile || '';
+      document.getElementById('shipStreet').value = currentUser.saved_address || 'Diva East, Near Station';
+      document.getElementById('shipPincode').value = buyerPincode;
+      document.getElementById('shipCity').value = PINCODE_DB[buyerPincode] ? PINCODE_DB[buyerPincode].city : 'Thane, Maharashtra';
+      document.getElementById('checkoutVerifiedEmailText').textContent = currentUser.email;
+      document.getElementById('utrInputBox').value = '';
+
+      document.getElementById('paymentModal').classList.add('open');
+      switchPaymentTab('qr');
+    }
+
+    function handleCheckoutPincodeChange(pin) {
+      if (pin.length === 6 && /^\d{6}$/.test(pin)) {
+        buyerPincode = pin;
+        if (PINCODE_DB[pin]) document.getElementById('shipCity').value = PINCODE_DB[pin].city;
+        updatePincodeHeaderUI();
+        refreshCheckoutModalPricing();
+        renderProductsGrid();
+      }
+    }
+
+    function refreshCheckoutModalPricing() {
+      const pin = document.getElementById('shipPincode').value.trim() || buyerPincode;
+      const totals = computeOrderTotals(activeCheckoutItems, pin);
+      const exactInr = (totals.totalPaise / 100).toFixed(2);
+
+      document.getElementById('modalExactAmount').textContent = `₹${exactInr}`;
+      document.getElementById('modalZoneBreakdown').textContent =
+        `Base: ${formatPaise(totals.subtotalPaise)} + ${totals.zoneLabel}: ${formatPaise(totals.deliveryFeePaise)}`;
+
+      document.getElementById('modalOrderItemsList').innerHTML = activeCheckoutItems.map(item => {
+        const prod = products.find(p => p.id === item.productId);
+        const shop = getShopById(prod.shopId);
+        return `
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#CBD5E1;">
+            <span>${prod.title} (×${item.qty}) [From ${shop.pincode}]</span>
+            <span class="mono">${formatPaise(prod.pricePaise * item.qty)}</span>
+          </div>
+        `;
+      }).join('');
+
+      const upiUri = `upi://pay?pa=${encodeURIComponent(MASTER_MERCHANT_UPI)}&pn=${encodeURIComponent('DropKart Plus')}&am=${exactInr}&cu=INR`;
+      document.getElementById('dynamicQrImage').src =
+        `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiUri)}`;
+
+      ['launchGPayBtn', 'launchPhonePeBtn', 'launchPaytmBtn', 'launchFamPayBtn'].forEach(id => {
+        document.getElementById(id).href = upiUri;
+      });
+    }
+
+    function switchPaymentTab(tab) {
+      activePaymentTab = tab;
+      document.querySelectorAll('.pay-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`paytab-${tab}`).classList.add('active');
+      document.getElementById('paymentPaneQR').style.display = (tab === 'qr') ? 'block' : 'none';
+      document.getElementById('paymentPaneDirectUPI').style.display = (tab === 'upi') ? 'block' : 'none';
+      document.getElementById('paymentPaneCard').style.display = (tab === 'card') ? 'block' : 'none';
+      document.getElementById('paymentPaneReq').style.display = (tab === 'req') ? 'block' : 'none';
+      refreshCheckoutModalPricing();
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.remove('open');
+    }
+
+    async function verifyTransactionAndBook() {
+      const receiver = document.getElementById('shipReceiverName').value.trim();
+      const mobile = document.getElementById('shipMobile').value.trim();
+      const street = document.getElementById('shipStreet').value.trim();
+      const pincode = document.getElementById('shipPincode').value.trim();
+      const city = document.getElementById('shipCity').value.trim();
+      const enteredUtr = document.getElementById('utrInputBox').value.trim();
+
+      if (!receiver || !/^\d{10}$/.test(mobile) || street.length < 4 || !/^\d{6}$/.test(pincode) || !city) {
+        return alert('📍 Step 1 Incomplete: Please fill in Receiver Name, 10-Digit Mobile, Street Address, and 6-Digit Pincode.');
+      }
+      if (!/^\d{12}$/.test(enteredUtr)) {
+        return alert('Step 3 Incomplete: Please enter a valid 12-Digit UPI / Bank UTR ID (e.g., 429810394812).');
+      }
+
+      const totals = computeOrderTotals(activeCheckoutItems, pincode);
+      const formattedAddress = `${receiver} (${mobile}), ${street}, ${city} - ${pincode}`;
+      const detailedItems = activeCheckoutItems.map(i => {
+        const p = products.find(prod => prod.id === i.productId);
+        return { productId: p.id, title: p.title, qty: i.qty, pricePaise: p.pricePaise };
+      });
+
+      const payload = {
+        user_id: currentUser.id,
+        customer_name: receiver,
+        customer_mobile: mobile,
+        buyer_email: currentUser.email,
+        shipping_address: formattedAddress,
+        buyer_pincode: pincode,
+        seller_pincode: totals.sellerPincode,
+        shop_id: totals.shopId,
+        items: detailedItems,
+        subtotal_paise: totals.subtotalPaise,
+        delivery_fee_paise: totals.deliveryFeePaise,
+        total_paise: totals.totalPaise,
+        payment_method: activePaymentTab.toUpperCase(),
+        utr_id: enteredUtr,
+        clear_cart: checkoutIsFromCart
+      };
+
+      const res = await fetch(`${API_BASE}/api/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return alert('❌ Checkout Error: ' + (data.error_message || 'Failed'));
+      }
+      if (checkoutIsFromCart) {
+        cart = [];
+        saveLocalState();
+        updateCartUI();
+      }
+      closePaymentModal();
+      await syncAllFromServer(true);
+      switchView('tracker');
+    }
+
+    // ==========================================================================
+    // CUSTOMER VERTICAL GREEN-TICK STEPPER (IMAGE 2 STYLE, AUTO-UPDATING)
+    // ==========================================================================
+    function renderCustomerOrdersView() {
+      const grvBox = document.getElementById('customerGrievancesList');
+      if (grvBox) {
+        grvBox.innerHTML = grievances.map(g => `
+          <div style="font-size:0.75rem; background:#F8FAFC; border:1px solid var(--border-light); padding:0.45rem 0.65rem; border-radius:6px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.4rem;">
+            <span><strong class="mono">${g.ticket_no}</strong> (${g.tracking_no}): ${g.issue_text} ${g.admin_remark ? `— <em>Admin: ${g.admin_remark}</em>` : ''}</span>
+            <span class="status-pill ${g.status === 'RESOLVED' ? 'status-ok' : 'status-warn'}">${g.status}</span>
+          </div>
+        `).join('');
+      }
+
+      const box = document.getElementById('ordersListContainer');
+      if (!box) return;
+      if (orders.length === 0) {
+        box.innerHTML = `<div class="form-card" style="text-align:center; color:var(--text-muted);">You have no orders yet.</div>`;
+        return;
+      }
+
+      box.innerHTML = orders.map(o => {
+        const st = o.order_status;
+        const isRejected = (st === 'REJECTED_REFUNDED' || st === 'RETURN_PROCESSED');
+        const isIssue = (st === 'ISSUE_REPORTED');
+
+        const s1Done = true;
+        const s2Done = ['PENDING_PICKUP', 'AGENT_ASSIGNED', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(st);
+        const s3Done = ['AGENT_ASSIGNED', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(st);
+        const s4Done = ['OUT_FOR_DELIVERY', 'DELIVERED'].includes(st);
+        const s5Done = (st === 'DELIVERED');
+
+        let statusHeadline = '';
+        if (st === 'PENDING_UTR') statusHeadline = '⏳ Step 1: Transaction UTR Pending Admin Check';
+        else if (st === 'PENDING_PICKUP') statusHeadline = '✅ Step 2: UTR Verified! Waiting for Delivery Boy to Accept';
+        else if (st === 'AGENT_ASSIGNED') statusHeadline = '🛵 Step 3: Delivery Boy is on the way to take the product from Seller';
+        else if (st === 'OUT_FOR_DELIVERY') statusHeadline = '📦 Step 4: Product is in hand of Delivery Boy — on the way to you!';
+        else if (st === 'DELIVERED') statusHeadline = '🎉 Step 5: Order is Delivered Successfully!';
+        else if (st === 'ISSUE_REPORTED') statusHeadline = '⚠️ Delivery Boy Reported a Package Issue (Sent to Admin for Return)';
+        else if (st === 'RETURN_PROCESSED') statusHeadline = '🔄 Product Return & Refund Processed by Admin';
+        else if (st === 'REJECTED_REFUNDED') statusHeadline = '❌ UTR Rejected / Refunded by Admin';
+
+        return `
+          <div class="form-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; border-bottom:1px solid var(--border-light); padding-bottom:0.65rem;">
+              <div>
+                <span class="status-pill ${isRejected || isIssue ? 'status-err' : (s5Done ? 'status-ok' : 'status-warn')}">
+                  ${statusHeadline}
+                </span>
+                <h3 class="mono" style="font-size:1.08rem; margin-top:0.25rem;">${o.tracking_no} • Total: ${formatPaise(o.total_paise)}</h3>
+                <div style="font-size:0.76rem; color:var(--text-secondary);">
+                  UTR ID: <strong class="mono">${o.utr_reference}</strong> • Mode: <strong>${o.payment_method}</strong> • Email: <strong>${o.buyer_email}</strong>
+                </div>
+              </div>
+
+              ${o.delivery_otp && !s5Done && !isRejected && !isIssue ? `
+                <div style="background:#DCFCE7; border:1.5px solid #16A34A; padding:0.55rem 0.9rem; border-radius:10px; text-align:center;">
+                  <div style="font-size:0.68rem; font-weight:800; color:#166534; text-transform:uppercase;">Give this OTP to Delivery Boy</div>
+                  <div class="mono" style="font-size:1.35rem; font-weight:900; color:#14532D; letter-spacing:3px;">${o.delivery_otp}</div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- VERTICAL STEP-BY-STEP TRACKER WITH GREEN CHECKMARKS (N26 STYLE) -->
+            <div class="v-stepper">
+              <div class="v-step ${s1Done ? 'completed' : ''}">
+                <div class="v-step-line"></div>
+                <div class="v-step-circle">✓</div>
+                <div class="v-step-content">
+                  <div class="v-step-title">1. Order Placed &amp; UTR Submitted</div>
+                  <div class="v-step-sub">Transaction Reference: <span class="mono">${o.utr_reference}</span></div>
+                </div>
+              </div>
+
+              <div class="v-step ${s2Done ? 'completed' : (st === 'PENDING_UTR' ? 'active' : (isRejected ? 'error' : ''))}">
+                <div class="v-step-line"></div>
+                <div class="v-step-circle">${s2Done ? '✓' : (isRejected ? '✕' : '•')}</div>
+                <div class="v-step-content">
+                  <div class="v-step-title">2. Admin UTR Verification &amp; OTP Generation</div>
+                  <div class="v-step-sub">${s2Done ? 'Payment verified by Admin ✓' : 'Waiting for Admin to verify 12-digit UTR'}</div>
+                </div>
+              </div>
+
+              <div class="v-step ${s3Done ? 'completed' : (st === 'PENDING_PICKUP' ? 'active' : '')}">
+                <div class="v-step-line"></div>
+                <div class="v-step-circle">${s3Done ? '✓' : (st === 'PENDING_PICKUP' ? '•' : '')}</div>
+                <div class="v-step-content">
+                  <div class="v-step-title">3. Delivery Boy Assigned (Heading to Seller)</div>
+                  <div class="v-step-sub">${s3Done ? `Assigned to ${o.delivery_agent_name || 'Delivery Partner'} ✓` : 'Waiting for Delivery Boy to accept task'}</div>
+                </div>
+              </div>
+
+              <div class="v-step ${s4Done ? 'completed' : (st === 'AGENT_ASSIGNED' ? 'active' : (isIssue ? 'error' : ''))}">
+                <div class="v-step-line"></div>
+                <div class="v-step-circle">${s4Done ? '✓' : (isIssue ? '!' : (st === 'AGENT_ASSIGNED' ? '•' : ''))}</div>
+                <div class="v-step-content">
+                  <div class="v-step-title">4. Product in Hand of Delivery Boy (Out for Delivery)</div>
+                  <div class="v-step-sub">${isIssue ? `Issue reported by Delivery Boy: "${o.issue_note}"` : (s4Done ? 'Package picked up and on the way to your doorstep 🛵' : 'Waiting for pickup confirmation')}</div>
+                </div>
+              </div>
+
+              <div class="v-step ${s5Done ? 'completed' : (st === 'OUT_FOR_DELIVERY' ? 'active' : '')}">
+                <div class="v-step-line"></div>
+                <div class="v-step-circle">${s5Done ? '✓' : (st === 'OUT_FOR_DELIVERY' ? '•' : '')}</div>
+                <div class="v-step-content">
+                  <div class="v-step-title">5. Order Delivered (Customer OTP Verified)</div>
+                  <div class="v-step-sub">${s5Done ? 'Package handed over & verified via 6-digit OTP ✓' : 'Share your 6-digit OTP with the Delivery Boy upon arrival'}</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#F8FAFC; padding:0.75rem; border-radius:8px; font-size:0.8rem;">
+              <div><strong>Ordered Items:</strong> ${(o.items || []).map(i => `${i.title} (×${i.qty})`).join(', ')}</div>
+              <div><strong>Delivery Address:</strong> ${o.delivery_address} (Zone Shipping: ${formatPaise(o.delivery_fee_paise)})</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function handleCreateGrievance(e) {
+      e.preventDefault();
+      const tracking_no = document.getElementById('grvTrackingNo').value.trim();
+      const issue_text = document.getElementById('grvIssueText').value.trim();
+      const customer_name = currentUser ? (currentUser.full_name || currentUser.username) : 'Customer';
+
+      const res = await fetch(`${API_BASE}/api/grievances/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: currentUser ? currentUser.id : '', tracking_no, customer_name, issue_text })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        e.target.reset();
+        await syncAllFromServer(true);
+        alert(`✅ Grievance Ticket ${data.ticket_no} submitted!`);
+      }
+    }
+
+    // ==========================================================================
+    // DELIVERY BOY PORTAL (INCLUDES ISSUE PHOTO UPLOAD TO ADMIN)
+    // ==========================================================================
+    function renderDeliveryBoyView() {
+      const listBox = document.getElementById('deliveryAssignedOrdersBox');
+      if (!listBox) return;
+
+      if (orders.length === 0) {
+        listBox.innerHTML = `<div class="form-card" style="text-align:center; color:var(--text-muted);">No verified orders available for pickup right now.</div>`;
+        return;
+      }
+
+      listBox.innerHTML = orders.map(o => {
+        const shop = getShopById(o.shop_id);
+        const st = o.order_status;
+
+        let actionHtml = '';
+        if (st === 'PENDING_PICKUP') {
+          actionHtml = `
+            <button class="btn-primary" onclick="deliveryBoyAcceptOrder('${o.tracking_no}')">
+              🛵 1. Accept Delivery (Head to Shop)
+            </button>
+          `;
+        } else if (st === 'AGENT_ASSIGNED') {
+          actionHtml = `
+            <button class="btn-primary" style="background:#D97706;" onclick="deliveryBoyMarkInHand('${o.tracking_no}')">
+              📦 2. Product is in Hand (Start Trip to Customer)
+            </button>
+          `;
+        } else if (st === 'OUT_FOR_DELIVERY') {
+          actionHtml = `
+            <div style="display:flex; gap:0.45rem; align-items:center; flex-wrap:wrap;">
+              <input type="text" id="delOtpInput_${o.tracking_no}" class="light-input mono" maxlength="6" placeholder="Ask Customer for 6-Digit OTP" style="width:210px;" />
+              <button class="btn-primary" style="background:var(--accent-emerald);" onclick="submitDeliveryBoyOtp('${o.tracking_no}')">
+                ✓ 3. Verify OTP &amp; Mark Delivered
+              </button>
+            </div>
+          `;
+        } else if (st === 'DELIVERED') {
+          actionHtml = `<span class="status-pill status-ok">✓ Delivered (OTP Matched)</span>`;
+        } else if (st === 'ISSUE_REPORTED') {
+          actionHtml = `<span class="status-pill status-err">⚠️ Issue Photo Sent to Admin</span>`;
+        } else if (st === 'RETURN_PROCESSED') {
+          actionHtml = `<span class="status-pill status-ok">🔄 Return Processed by Admin</span>`;
+        }
+
+        // Allow Delivery Boy to upload an issue photo once accepted or out for delivery
+        const canReportIssue = (st === 'AGENT_ASSIGNED' || st === 'OUT_FOR_DELIVERY');
+
+        return `
+          <div class="form-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+              <div>
+                <span class="status-pill ${st === 'DELIVERED' ? 'status-ok' : (st === 'ISSUE_REPORTED' ? 'status-err' : 'status-warn')}">${st}</span>
+                <h3 class="mono" style="font-size:1.05rem; margin-top:4px;">${o.tracking_no} — Collect from: ${shop.name} (${shop.city} - ${shop.pincode})</h3>
+                <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">
+                  👤 Customer: <strong>${o.customer_name} (${o.customer_mobile})</strong><br>
+                  📍 Deliver To: <strong>${o.delivery_address}</strong><br>
+                  📦 Items: ${(o.items || []).map(i => `${i.title} (×${i.qty})`).join(', ')}
+                </div>
+              </div>
+              <div>${actionHtml}</div>
+            </div>
+
+            ${canReportIssue ? `
+              <div style="margin-top:0.85rem; padding-top:0.75rem; border-top:1px dashed var(--border-light); background:#FEF2F2; padding:0.75rem; border-radius:10px;">
+                <div style="font-size:0.76rem; font-weight:800; color:#991B1B; margin-bottom:0.4rem;">
+                  ⚠️ Found a Damaged / Defective Product? Upload Issue Photo for Admin Return:
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+                  <input type="file" accept="image/*" class="light-input" style="flex:1; min-width:190px; background:#fff;" onchange="stageDeliveryIssuePhoto('${o.tracking_no}', this.files)" />
+                  <input type="text" id="delIssueNote_${o.tracking_no}" class="light-input" style="flex:1.5; min-width:200px; background:#fff;" placeholder="Describe issue (e.g. Box damaged / wrong item)" />
+                  <button type="button" class="btn-danger-sm" onclick="submitDeliveryBoyIssueReport('${o.tracking_no}')">
+                    📤 Upload Issue Photo to Admin
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+
+            ${o.issue_image ? `
+              <div style="margin-top:0.65rem; display:flex; align-items:center; gap:0.75rem; background:#FFFBEB; padding:0.6rem; border-radius:8px; border:1px solid #FDE68A;">
+                <img src="${o.issue_image}" style="width:58px; height:58px; object-fit:cover; border-radius:6px;" />
+                <div style="font-size:0.78rem;">
+                  <strong>Uploaded Issue Evidence:</strong> ${o.issue_note}<br>
+                  <span style="color:var(--text-muted);">Admin Status: ${o.issue_status}</span>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function stageDeliveryIssuePhoto(trackingNo, files) {
+      if (!files || !files[0]) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        stagedDeliveryIssueImage[trackingNo] = evt.target.result;
+      };
+      reader.readAsDataURL(files[0]);
+    }
+
+    async function submitDeliveryBoyIssueReport(trackingNo) {
+      const imgData = stagedDeliveryIssueImage[trackingNo];
+      const noteEl = document.getElementById(`delIssueNote_${trackingNo}`);
+      const issue_note = noteEl ? noteEl.value.trim() : 'Damaged package reported by Delivery Boy';
+
+      if (!imgData) {
+        return alert('Please choose a photo of the product issue first!');
+      }
+
+      const res = await fetch(`${API_BASE}/api/delivery/report-issue`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracking_no: trackingNo, issue_note, issue_image: imgData })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert('📤 Issue photo uploaded to Master Admin Control Center for return processing!');
+        await syncAllFromServer(true);
+      } else {
+        alert(data.error_message || 'Failed to report issue');
+      }
+    }
+
+    async function deliveryBoyAcceptOrder(trackingNo) {
+      const res = await fetch(`${API_BASE}/api/delivery/accept`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tracking_no: trackingNo,
+          agent_id: currentUser ? currentUser.id : 'u_delivery',
+          agent_name: currentUser ? currentUser.full_name : 'Delivery Boy'
+        })
+      });
+      if (res.ok) {
+        await syncAllFromServer(true);
+      }
+    }
+
+    async function deliveryBoyMarkInHand(trackingNo) {
+      const res = await fetch(`${API_BASE}/api/delivery/pickup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracking_no: trackingNo })
+      });
+      if (res.ok) {
+        await syncAllFromServer(true);
+      }
+    }
+
+    async function submitDeliveryBoyOtp(trackingNo) {
+      const otpInput = document.getElementById(`delOtpInput_${trackingNo}`);
+      const enteredOtp = otpInput ? otpInput.value.trim() : '';
+      if (!/^\d{6}$/.test(enteredOtp)) {
+        return alert('Please enter the 6-digit Delivery OTP given by the customer.');
+      }
+
+      const res = await fetch(`${API_BASE}/api/delivery/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracking_no: trackingNo, otp: enteredOtp })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert(`🎉 OTP Matched! Order ${trackingNo} is now marked DELIVERED.`);
+        await syncAllFromServer(true);
+      } else {
+        alert('❌ ' + (data.error_message || 'OTP verification failed'));
+      }
+    }
+
+    // ==========================================================================
+    // MASTER ADMIN 6-MODULE RENDERING (INCLUDES DELIVERY BOY ISSUE PHOTO & RETURN)
+    // ==========================================================================
+    function renderAdminDashboardAll() {
+      const ordBox = document.getElementById('adminPendingOrdersContainer');
+      if (ordBox) {
+        ordBox.innerHTML = orders.length === 0 ? `<div style="color:var(--text-muted); font-size:0.82rem;">No orders yet.</div>` :
+          orders.map(o => `
+            <div style="border:1px solid var(--border-light); border-radius:10px; padding:0.85rem; display:flex; flex-direction:column; gap:0.65rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.65rem;">
+                <div>
+                  <span class="status-pill ${o.order_status === 'PENDING_UTR' ? 'status-warn' : (['REJECTED_REFUNDED', 'ISSUE_REPORTED'].includes(o.order_status) ? 'status-err' : 'status-ok')}">${o.order_status}</span>
+                  <div class="mono" style="font-weight:800; font-size:0.92rem; margin-top:3px;">${o.tracking_no} — ${formatPaise(o.total_paise)}</div>
+                  <div style="font-size:0.76rem; color:var(--text-secondary);">
+                    UTR: <strong class="mono">${o.utr_reference}</strong> • Buyer: ${o.customer_name} (${o.buyer_email})
+                  </div>
+                  ${o.delivery_otp ? `<div class="mono" style="font-size:0.75rem; color:var(--accent-emerald);">Customer Delivery OTP: <strong>${o.delivery_otp}</strong></div>` : ''}
+                </div>
+                <div style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+                  ${o.order_status === 'PENDING_UTR' ? `
+                    <button class="btn-primary" onclick="adminApproveOrderUtr('${o.tracking_no}')">✓ Verify UTR &amp; Send OTP</button>
+                    <button class="btn-danger-sm" onclick="adminRejectOrder('${o.tracking_no}')">✕ Reject / Refund</button>
+                  ` : `<span class="status-pill status-ok">${o.order_status}</span>`}
+                </div>
+              </div>
+
+              ${o.issue_image ? `
+                <div style="background:#FEF2F2; border:1.5px solid #FECACA; padding:0.75rem; border-radius:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+                  <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <img src="${o.issue_image}" onclick="window.open('${o.issue_image}', '_blank')" style="width:74px; height:74px; object-fit:cover; border-radius:8px; border:2px solid #DC2626; cursor:pointer;" title="Click to enlarge Delivery Boy issue photo" />
+                    <div>
+                      <span class="status-pill status-err">Delivery Boy Issue Photo Uploaded</span>
+                      <div style="font-size:0.84rem; font-weight:800; color:#991B1B; margin-top:3px;">Reason: "${o.issue_note}"</div>
+                      <div style="font-size:0.74rem; color:#7F1D1D;">Reported by Delivery Partner: ${o.delivery_agent_name || 'Delivery Agent'}</div>
+                    </div>
+                  </div>
+                  ${o.order_status !== 'RETURN_PROCESSED' ? `
+                    <button class="btn-primary" style="background:#DC2626;" onclick="adminProcessIssueReturn('${o.tracking_no}')">
+                      🔄 Process Product Return &amp; Refund
+                    </button>
+                  ` : `<span class="status-pill status-ok">✓ Return &amp; Refund Processed</span>`}
+                </div>
+              ` : ''}
+            </div>
+          `).join('');
+      }
+
+      const kycBox = document.getElementById('adminShopKycContainer');
+      if (kycBox) {
+        kycBox.innerHTML = shops.map(s => `
+          <div style="border:1px solid var(--border-light); border-radius:10px; padding:0.8rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.65rem;">
+            <div>
+              <span class="status-pill ${s.kyc_status === 'VERIFIED' ? 'status-ok' : (s.kyc_status === 'REJECTED' ? 'status-err' : 'status-warn')}">${s.kyc_status}</span>
+              <div style="font-weight:800; font-size:0.92rem; margin-top:3px;">🏪 ${s.name} (Origin: ${s.city} - ${s.pincode}) • Category: ${s.category}</div>
+              <div style="font-size:0.76rem; color:var(--text-secondary);">
+                GSTIN: <strong class="mono">${s.gstin}</strong> • ₹25 Fee UTR: <strong class="mono">${s.fee_utr}</strong> • Seller UPI: <strong class="mono">${s.upi_id}</strong>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.45rem;">
+              <button class="btn-primary" onclick="adminUpdateShopKyc('${s.id}', 'VERIFIED')">✓ Approve KYC</button>
+              <button class="btn-danger-sm" onclick="adminUpdateShopKyc('${s.id}', 'REJECTED')">✕ Suspend</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const payBox = document.getElementById('adminVendorPayoutsContainer');
+      if (payBox) {
+        const commPct = (platformConfig.commission_pct || 10) / 100.0;
+        payBox.innerHTML = orders.length === 0 ? `<div style="color:var(--text-muted); font-size:0.82rem;">No orders for payout settlement yet.</div>` :
+          orders.map(o => {
+            const shop = getShopById(o.shop_id);
+            const netPaise = o.total_paise - Math.round(o.total_paise * 0.005) - Math.round(o.total_paise * commPct);
+            return `
+              <div style="border:1px solid var(--border-light); border-radius:10px; padding:0.8rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.65rem;">
+                <div>
+                  <span class="status-pill ${o.vendor_payout_status === 'PAID' ? 'status-ok' : 'status-warn'}">Payout: ${o.vendor_payout_status}</span>
+                  <div style="font-weight:800; font-size:0.9rem; margin-top:3px;">${o.tracking_no} ➔ Seller: ${shop.name} (${shop.upi_id})</div>
+                  <div style="font-size:0.76rem; color:var(--text-secondary);">
+                    Order Status: <strong>${o.order_status}</strong> • Net Vendor Payable: <strong class="mono" style="color:var(--accent-emerald);">${formatPaise(netPaise)}</strong>
+                  </div>
+                </div>
+                <div>
+                  ${o.order_status === 'DELIVERED' && o.vendor_payout_status !== 'PAID' ? `
+                    <button class="btn-primary" style="background:var(--accent-emerald);" onclick="adminSettleVendorPayout('${o.tracking_no}')">
+                      💸 Settle ${formatPaise(netPaise)} to Seller UPI
+                    </button>
+                  ` : (o.vendor_payout_status === 'PAID' ? `<span class="status-pill status-ok">✓ Settled to Seller</span>` : `<span class="status-pill status-warn">Wait for Delivery Boy OTP</span>`)}
+                </div>
+              </div>
+            `;
+          }).join('');
+      }
+
+      const catBox = document.getElementById('adminCatalogModContainer');
+      if (catBox) {
+        catBox.innerHTML = products.map(p => {
+          const shop = getShopById(p.shopId);
+          return `
+            <div style="border:1px solid var(--border-light); border-radius:10px; padding:0.7rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
+              <div style="display:flex; align-items:center; gap:0.65rem;">
+                <img src="${p.images[0]}" style="width:44px; height:44px; border-radius:6px; object-fit:cover;" />
+                <div>
+                  <span class="status-pill ${p.modStatus === 'APPROVED' ? 'status-ok' : 'status-err'}">${p.modStatus}</span>
+                  <div style="font-weight:700; font-size:0.86rem;">${p.title} — ${formatPaise(p.pricePaise)}</div>
+                  <div style="font-size:0.72rem; color:var(--text-secondary);">Shop: ${shop.name} (${shop.pincode}) • Cat: ${p.category}</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.4rem;">
+                <button class="btn-outline-sm" onclick="adminModerateProduct('${p.id}', 'APPROVED')">✓ Approve</button>
+                <button class="btn-danger-sm" onclick="adminModerateProduct('${p.id}', 'BLOCKED')">🚫 Block Listing</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const dispBox = document.getElementById('adminGrievancesContainer');
+      if (dispBox) {
+        dispBox.innerHTML = grievances.length === 0 ? `<div style="color:var(--text-muted); font-size:0.82rem;">No customer grievance tickets raised yet.</div>` :
+          grievances.map(g => `
+            <div style="border:1px solid var(--border-light); border-radius:10px; padding:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
+              <div>
+                <span class="status-pill ${g.status === 'RESOLVED' ? 'status-ok' : 'status-err'}">${g.status}</span>
+                <div style="font-weight:700; font-size:0.88rem; margin-top:3px;"><span class="mono">${g.ticket_no}</span> • Order: <span class="mono">${g.tracking_no}</span> (${g.customer_name})</div>
+                <div style="font-size:0.78rem; color:var(--text-secondary);">Issue: "${g.issue_text}" ${g.admin_remark ? `• <strong>Resolution: ${g.admin_remark}</strong>` : ''}</div>
+              </div>
+              ${g.status !== 'RESOLVED' ? `
+                <button class="btn-primary" onclick="adminResolveGrievance('${g.ticket_no}')">✓ Resolve Ticket</button>
+              ` : `<span class="status-pill status-ok">Resolved ✓</span>`}
+            </div>
+          `).join('');
+      }
+
+      document.getElementById('cfgLocalInr').value = Math.round((platformConfig.local_shipping_paise || 3000) / 100);
+      document.getElementById('cfgRegionalInr').value = Math.round((platformConfig.regional_shipping_paise || 5000) / 100);
+      document.getElementById('cfgNationalInr').value = Math.round((platformConfig.national_shipping_paise || 9000) / 100);
+      document.getElementById('cfgCommissionPct').value = platformConfig.commission_pct || 10;
+      document.getElementById('cfgSmtpGmailUser').value = platformConfig.smtp_gmail_user || '';
+
+      const ledgerBody = document.getElementById('adminLedgerTableBody');
+      if (ledgerBody) {
+        ledgerBody.innerHTML = ledgerEntries.map(l => `
+          <tr>
+            <td class="mono">${l.reference_id}</td>
+            <td>${l.account_name}</td>
+            <td class="mono">${formatPaise(l.debit_paise)}</td>
+            <td class="mono">${formatPaise(l.credit_paise)}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    async function adminApproveOrderUtr(trackingNo) {
+      const res = await fetch(`${API_BASE}/api/admin/verify-utr`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracking_no: trackingNo })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert(`✅ UTR Verified!\n\nCustomer Delivery OTP Generated: ${data.delivery_otp}\nCustomer's Vertical Tracker has updated live!`);
+        await syncAllFromServer(true);
+      } else {
+        alert(data.error_message || 'Failed');
+      }
+    }
+
+    async function adminRejectOrder(trackingNo) {
+      await fetch(`${API_BASE}/api/admin/reject-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracking_no: trackingNo })
+      });
+      await syncAllFromServer(true);
+    }
+
+    async function adminProcessIssueReturn(trackingNo) {
+      const res = await fetch(`${API_BASE}/api/admin/process-return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracking_no: trackingNo })
+      });
+      if (res.ok) {
+        alert(`🔄 Product Return & Refund processed for ${trackingNo} based on the Delivery Boy's uploaded photo!`);
+        await syncAllFromServer(true);
+      }
+    }
+
+    async function adminUpdateShopKyc(shopId, decision) {
+      await fetch(`${API_BASE}/api/admin/shop-kyc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop_id: shopId, decision })
+      });
+      await syncAllFromServer(true);
+    }
+
+    async function adminSettleVendorPayout(trackingNo) {
+      const res = await fetch(`${API_BASE}/api/admin/settle-payout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tracking_no: trackingNo })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert(`💸 Vendor Payout of ${formatPaise(data.settled_paise)} settled!`);
+        await syncAllFromServer(true);
+      }
+    }
+
+    async function adminModerateProduct(productId, modStatus) {
+      await fetch(`${API_BASE}/api/admin/moderate-product`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId, mod_status: modStatus })
+      });
+      await syncAllFromServer(true);
+    }
+
+    async function adminResolveGrievance(ticketNo) {
+      const remark = prompt('Enter Admin Resolution Note for Customer:', 'Verified & resolved by Grievance Officer');
+      if (!remark) return;
+      await fetch(`${API_BASE}/api/admin/resolve-grievance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticket_no: ticketNo, admin_remark: remark })
+      });
+      await syncAllFromServer(true);
+    }
+
+    async function handleAdminUpdateConfig(e) {
+      e.preventDefault();
+      const local_inr = Number(document.getElementById('cfgLocalInr').value);
+      const regional_inr = Number(document.getElementById('cfgRegionalInr').value);
+      const national_inr = Number(document.getElementById('cfgNationalInr').value);
+      const commission_pct = Number(document.getElementById('cfgCommissionPct').value);
+      const smtp_gmail_user = document.getElementById('cfgSmtpGmailUser').value.trim();
+      const smtp_gmail_pass = document.getElementById('cfgSmtpGmailPass').value.trim();
+
+      await fetch(`${API_BASE}/api/admin/update-config`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ local_inr, regional_inr, national_inr, commission_pct, smtp_gmail_user, smtp_gmail_pass })
+      });
+      document.getElementById('cfgSmtpGmailPass').value = '';
+      await syncAllFromServer(true);
+      alert('✅ Zone Shipping Rates & Gmail SMTP Configuration saved!');
+    }
+
+    // ==========================================================================
+    // AUTHENTICATION, DELIVERY BOY SIGNUP & FORGET PASSWORD REPLACEMENT
+    // ==========================================================================
+    function requireAuth(callback) {
+      if (currentUser && currentUser.username) {
+        callback();
+        return;
+      }
+      pendingAuthCallback = callback;
+      openAuthModal(true);
+    }
+
+    function openAuthModal(showWarn = false) {
+      document.getElementById('authGateWarningBanner').style.display = showWarn ? 'block' : 'none';
+      if (currentUser) {
+        document.getElementById('authTabsBar').style.display = 'none';
+        document.getElementById('signInForm').style.display = 'none';
+        document.getElementById('signUpForm').style.display = 'none';
+        document.getElementById('forgotPasswordForm').style.display = 'none';
+        document.getElementById('signedInProfileBox').style.display = 'block';
+        document.getElementById('profileNameText').textContent = currentUser.full_name || currentUser.fullName;
+        document.getElementById('profileRoleText').textContent = currentUser.role;
+        document.getElementById('profileUserText').textContent = currentUser.username;
+        document.getElementById('profileMobileText').textContent = currentUser.mobile;
+        document.getElementById('profileEmailText').textContent = currentUser.email || 'Not linked yet (Will prompt on Buy)';
+      } else {
+        document.getElementById('authTabsBar').style.display = 'grid';
+        document.getElementById('signedInProfileBox').style.display = 'none';
+        switchAuthTab('signin');
+      }
+      document.getElementById('authModal').classList.add('open');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.remove('open');
+    }
+
+    function switchAuthTab(tab) {
+      const isSignIn = (tab === 'signin');
+      const isSignUp = (tab === 'signup');
+      const isForgot = (tab === 'forgot');
+
+      document.getElementById('authTabsBar').style.display = isForgot ? 'none' : 'grid';
+      document.getElementById('authTabSignIn').style.background = isSignIn ? '#fff' : 'transparent';
+      document.getElementById('authTabSignUp').style.background = isSignUp ? '#fff' : 'transparent';
+
+      document.getElementById('signInForm').style.display = isSignIn ? 'block' : 'none';
+      document.getElementById('signUpForm').style.display = isSignUp ? 'block' : 'none';
+      document.getElementById('forgotPasswordForm').style.display = isForgot ? 'block' : 'none';
+    }
+
+    async function handleForgotPasswordSubmit(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('fpIdentifier').value.trim();
+      const current_password = document.getElementById('fpCurrentPassword').value;
+      const new_password = document.getElementById('fpNewPassword').value;
+
+      const res = await fetch(`${API_BASE}/api/auth/replace-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier, current_password, new_password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert('✅ ' + data.message);
+        e.target.reset();
+        switchAuthTab('signin');
+        document.getElementById('loginIdentifier').value = identifier;
+      } else {
+        alert('❌ ' + (data.error_message || 'Failed to replace password'));
+      }
+    }
+
+    async function handleSignInSubmit(e) {
+      e.preventDefault();
+      const identifier = document.getElementById('loginIdentifier').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      const res = await fetch(`${API_BASE}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username_or_email: identifier, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        currentUser = data.user_data;
+        // Restore DB-persisted cart on login
+        if (Array.isArray(data.saved_cart)) {
+          cart = data.saved_cart;
+        } else {
+          loadUserCart();
+        }
+        saveLocalState();
+        updateNavbarAuthUI();
+        updateCartUI();
+        closeAuthModal();
+        enforceRoleLayoutAndRouting(true);
+        await syncAllFromServer(true);
+
+        if (pendingAuthCallback && currentUser.role === 'Customer') {
+          const fn = pendingAuthCallback;
+          pendingAuthCallback = null;
+          fn();
+        } else {
+          pendingAuthCallback = null;
+        }
+      } else {
+        alert('❌ ' + (data.error_message || 'Invalid login'));
+      }
+    }
+
+    async function handleSignUpSubmit(e) {
+      e.preventDefault();
+      const role = document.getElementById('regRoleSelect').value;
+      const full_name = document.getElementById('regFullName').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const mobile = document.getElementById('regMobile').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const password = document.getElementById('regPassword').value;
+
+      const res = await fetch(`${API_BASE}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role, full_name, username, mobile, email, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        currentUser = data.user_data;
+        cart = [];
+        saveLocalState();
+        updateNavbarAuthUI();
+        updateCartUI();
+        closeAuthModal();
+        enforceRoleLayoutAndRouting(true);
+        await syncAllFromServer(true);
+        alert(`✅ ${currentUser.role} Account created for ${full_name}!`);
+        if (pendingAuthCallback && currentUser.role === 'Customer') {
+          const fn = pendingAuthCallback;
+          pendingAuthCallback = null;
+          fn();
+        }
+      } else {
+        alert('❌ ' + (data.error_message || 'Registration failed'));
+      }
+    }
+
+    function handleSignOut() {
+      currentUser = null;
+      loadUserCart();
+      saveLocalState();
+      updateNavbarAuthUI();
+      updateCartUI();
+      closeAuthModal();
+      enforceRoleLayoutAndRouting(true);
+      syncAllFromServer(true);
+    }
+
+    function updateNavbarAuthUI() {
+      const btn = document.getElementById('userAccountBtn');
+      const txt = document.getElementById('userAccountBtnText');
+      if (!currentUser) {
+        txt.textContent = 'Login';
+        btn.classList.remove('logged-in');
+      } else {
+        if (currentUser.role === 'Super admin') txt.textContent = '🛡️ Admin (Ajay)';
+        else if (currentUser.role === 'Delivery Agent') txt.textContent = `🛵 ${currentUser.username}`;
+        else txt.textContent = currentUser.username;
+        btn.classList.add('logged-in');
+      }
+    }
+
+    function handleProtectedSellerPortal() {
+      requireAuth(() => switchView('seller'));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadUserCart();
+      updateNavbarAuthUI();
+      enforceRoleLayoutAndRouting(true);
+      updateCartUI();
+      syncAllFromServer(true);
+
+      // Real-time background polling every 3 seconds (No manual refresh needed!)
+      setInterval(() => {
+        syncAllFromServer(false);
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
